@@ -19,16 +19,31 @@
             },
             "options": {
                 "cwd": "${workspaceFolder}"
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
             }
         },
         {
-            "label": "Build and Simulate without ELPM",
+            "label": "Program Hardware",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\tools\\cli\\cli-program-project.ps1",
+                "-ProjectDir",
+                "${fileDirname}",
+                "-Programmer",
+                "arduino",
+                "-Port",
+                "COM3"
+            ],
+            "group": "build",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Program Simulator",
             "type": "shell",
             "command": "powershell.exe",
             "args": [
@@ -42,90 +57,6 @@
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}"
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            }
-        },
-        {
-            "label": "Program Current Project",
-            "type": "shell",
-            "command": "powershell.exe",
-            "args": [
-                "-ExecutionPolicy",
-                "Bypass",
-                "-File",
-                "${workspaceFolder}\\tools\\cli\\cli-program-project.ps1",
-                "-ProjectDir",
-                "${fileDirname}",
-                "-Programmer",
-                "arduino"
-            ],
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            }
-        },
-        {
-            "label": "Generate HEX File",
-            "type": "shell",
-            "command": "${workspaceFolder}\\tools\\avr-toolchain\\bin\\avr-objcopy.exe",
-            "args": [
-                "-O",
-                "ihex",
-                "-R",
-                ".eeprom",
-                "Main.elf",
-                "Main.hex"
-            ],
-            "group": "build",
-            "options": {
-                "cwd": "${fileDirname}"
-            },
-            "dependsOn": "Build Current Project",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            }
-        },
-        {
-            "label": "Build and Generate HEX",
-            "dependsOrder": "sequence",
-            "dependsOn": [
-                "Build Current Project",
-                "Generate HEX File"
-            ],
-            "group": "build"
-        },
-        {
-            "label": "Program with Custom Programmer",
-            "type": "shell",
-            "command": "powershell.exe",
-            "args": [
-                "-ExecutionPolicy",
-                "Bypass",
-                "-File",
-                "${workspaceFolder}\\tools\\cli\\cli-program-project.ps1",
-                "-Programmer",
-                "${input:programmerType}"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
             }
         },
         {
@@ -133,165 +64,18 @@
             "dependsOrder": "sequence",
             "dependsOn": [
                 "Build Current Project",
-                "Program Current Project"
+                "Program Hardware"
             ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            }
+            "group": "build"
         },
         {
-            "label": "Show Memory Usage",
-            "type": "shell",
-            "command": "${workspaceFolder}\\tools\\avr-toolchain\\bin\\avr-size.exe",
-            "args": [
-                "--format=berkeley",
-                "${fileBasenameNoExtension}.elf"
+            "label": "Build and Simulate Current Project",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Program Simulator",
+                "Simulate in SimulIDE (Current Project)"
             ],
-            "group": "build",
-            "options": {
-                "cwd": "${fileDirname}"
-            },
-            "dependsOn": "Build Current Project",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            }
-        },
-        {
-            "label": "Clean Current Project",
-            "type": "shell",
-            "command": "Remove-Item",
-            "args": [
-                "-Path",
-                "*.o,*.elf,*.hex,*.map",
-                "-Force",
-                "-ErrorAction",
-                "SilentlyContinue"
-            ],
-            "group": "build",
-            "options": {
-                "cwd": "${fileDirname}",
-                "shell": {
-                    "executable": "pwsh.exe"
-                }
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            }
-        },
-        {
-            "label": "Build All Projects",
-            "type": "shell",
-            "command": "powershell.exe",
-            "args": [
-                "-ExecutionPolicy",
-                "Bypass",
-                "-File",
-                "${workspaceFolder}\\tools\\cli\\cli-build-all.ps1",
-                "-TestAll"
-            ],
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            }
-        },
-        {
-            "label": "Open Serial Monitor",
-            "type": "shell",
-            "command": "powershell",
-            "args": [
-                "-Command",
-                "Write-Host 'Available COM ports:' -ForegroundColor Green; [System.IO.Ports.SerialPort]::getportnames() | ForEach-Object { Write-Host \"  $_\" -ForegroundColor Yellow }; Write-Host 'Enter COM port (e.g., COM3):' -ForegroundColor Green; $port = Read-Host; Write-Host \"Starting serial monitor on $port at 9600 baud...\" -ForegroundColor Green; Write-Host 'Press Ctrl+C to exit' -ForegroundColor Yellow; $serialPort = New-Object System.IO.Ports.SerialPort($port, 9600); try { $serialPort.Open(); Write-Host \"Connected to $port\" -ForegroundColor Green; while($true) { if($serialPort.BytesToRead -gt 0) { Write-Host $serialPort.ReadExisting() -NoNewline } Start-Sleep -Milliseconds 10 } } catch { Write-Host \"Error: $_\" -ForegroundColor Red } finally { if($serialPort.IsOpen) { $serialPort.Close() } }"
-            ],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            },
-            "isBackground": true
-        },
-        {
-            "label": "Test System",
-            "type": "shell",
-            "command": "powershell.exe",
-            "args": [
-                "-ExecutionPolicy",
-                "Bypass",
-                "-File",
-                "${workspaceFolder}\\tools\\cli\\cli-test-system.ps1",
-                "-Interactive"
-            ],
-            "group": "test",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            }
-        },
-        {
-            "label": "Analyze Code Quality",
-            "type": "shell",
-            "command": "powershell.exe",
-            "args": [
-                "-ExecutionPolicy",
-                "Bypass",
-                "-File",
-                "${workspaceFolder}\\tools\\cli\\cli-analyze-code.ps1",
-                "-ProjectPath",
-                "${fileDirname}"
-            ],
-            "group": "test",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            }
-        },
-        {
-            "label": "Create New Project",
-            "type": "shell",
-            "command": "powershell.exe",
-            "args": [
-                "-ExecutionPolicy",
-                "Bypass",
-                "-File",
-                "${workspaceFolder}\\tools\\cli\\cli-new-project.ps1"
-            ],
-            "group": "build",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            }
+            "group": "test"
         },
         {
             "label": "Simulate in SimulIDE (Current Project)",
@@ -308,76 +92,40 @@
             "group": "test",
             "options": {
                 "cwd": "${workspaceFolder}"
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
             }
         },
         {
-            "label": "Build and Simulate Current Project",
-            "dependsOrder": "sequence",
-            "dependsOn": [
-                "Build and Simulate without ELPM (SimulIDE)"
-            ],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            }
-        },
-        {
-            "label": "Build and Simulate without ELPM (SimulIDE)",
-            "dependsOrder": "sequence",
-            "dependsOn": [
-                "Build and Simulate without ELPM",
-                "Simulate in SimulIDE (Current Project)"
-            ],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "new"
-            }
-        },
-        {
-            "label": "Open SimulIDE Circuit Editor",
+            "label": "Show Memory Usage",
             "type": "shell",
-            "command": "powershell.exe",
+            "command": "${workspaceFolder}\\tools\\avr-toolchain\\bin\\avr-size.exe",
             "args": [
-                "-ExecutionPolicy",
-                "Bypass",
-                "-File",
-                "${workspaceFolder}\\tools\\simulide\\open-circuit-editor.ps1",
-                "-WorkspaceRoot",
-                "${workspaceFolder}"
+                "--format=berkeley",
+                "${fileBasenameNoExtension}.elf"
             ],
-            "group": "test",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared"
-            }
-        }
-    ],
-    "inputs": [
+            "group": "build",
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "dependsOn": "Build Current Project"
+        },
         {
-            "id": "programmerType",
-            "description": "Select programmer type",
-            "type": "pickString",
-            "options": [
-                "usbasp",
-                "arduino",
-                "avrisp",
-                "stk500v2"
+            "label": "Clean Project",
+            "type": "shell",
+            "command": "Remove-Item",
+            "args": [
+                "-Path",
+                "*.o,*.elf,*.hex,*.map",
+                "-Force",
+                "-ErrorAction",
+                "SilentlyContinue"
             ],
-            "default": "usbasp"
+            "group": "build",
+            "options": {
+                "cwd": "${fileDirname}",
+                "shell": {
+                    "executable": "pwsh.exe"
+                }
+            }
         }
     ]
 }
