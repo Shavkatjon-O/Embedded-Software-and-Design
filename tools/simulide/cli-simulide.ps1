@@ -170,7 +170,7 @@ if ([string]::IsNullOrEmpty($SimulIDEPath) -or -not (Test-Path $SimulIDEPath)) {
     Write-Host "   https://simulide.com/p/downloads/" -ForegroundColor White
     Write-Host ""
     Write-Host "Installation options:" -ForegroundColor $InfoColor
-    Write-Host "   1. Extract to workspace: $WorkspaceRoot\simulators\SimulIDE_1.1.0-SR1_Win64\" -ForegroundColor White
+    Write-Host "   1. Extract to workspace: $WorkspaceRoot\tools\simulide\SimulIDE_1.1.0-SR1_Win64\" -ForegroundColor White
     Write-Host "   2. Install to Program Files" -ForegroundColor White
     Write-Host "   3. Specify custom path with -SimulIDEPath parameter" -ForegroundColor White
     Write-Host ""

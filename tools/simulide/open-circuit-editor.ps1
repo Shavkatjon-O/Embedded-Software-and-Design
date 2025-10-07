@@ -4,7 +4,7 @@
     Open SimulIDE with the official circuit file
     
 .DESCRIPTION
-    Opens SimulIDE with the official Simulator.simu circuit file from the simulators directory.
+    Opens SimulIDE with the official Simulator.simu circuit file from the tools/simulide directory.
     This ensures students always use the correct circuit file, not random files from user directories.
 #>
 
@@ -15,19 +15,19 @@ param(
 Write-Host "🎯 Opening SimulIDE with OFFICIAL circuit file..." -ForegroundColor Cyan
 
 # Path to the official circuit file
-$CircuitPath = Join-Path $WorkspaceRoot "simulators\Simulator.simu"
+$CircuitPath = Join-Path $WorkspaceRoot "tools\simulide\Simulator.simu"
 
 # Verify circuit file exists
 if (-not (Test-Path $CircuitPath)) {
     Write-Host "❌ Official circuit not found: $CircuitPath" -ForegroundColor Red
-    Write-Host "   Please ensure simulators\Simulator.simu exists in the workspace" -ForegroundColor Yellow
+    Write-Host "   Please ensure tools\simulide\Simulator.simu exists in the workspace" -ForegroundColor Yellow
     exit 1
 }
 
 Write-Host "✅ Circuit file found: $CircuitPath" -ForegroundColor Green
 
 # Try workspace SimulIDE first
-$SimulIDEPath = Join-Path $WorkspaceRoot "simulators\SimulIDE_1.1.0-SR1_Win64\simulide.exe"
+$SimulIDEPath = Join-Path $WorkspaceRoot "tools\simulide\SimulIDE_1.1.0-SR1_Win64\simulide.exe"
 
 if (Test-Path $SimulIDEPath) {
     Write-Host "✅ Using workspace SimulIDE: $SimulIDEPath" -ForegroundColor Green

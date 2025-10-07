@@ -48,9 +48,9 @@ class ProjectLauncherDashboard(BaseDashboard):
         # Workspace paths
         self.workspace_root = Path(__file__).parent.parent
         self.projects_dir = self.workspace_root / "projects"
-        self.simulators_dir = self.workspace_root / "simulators"
+        self.simulators_dir = self.workspace_root / "tools" / "simulide"
         self.simulide_path = self.simulators_dir / "SimulIDE_1.1.0-SR1_Win64" / "simulide.exe"
-        self.circuit_file = self.simulators_dir / "SimulIDE_1.1.0-SR1_Win64" / "Simulator.simu"
+        self.circuit_file = self.simulators_dir / "Simulator.simu"
         self.build_script = self.workspace_root / "tools" / "cli" / "cli-build-project.ps1"
         
         # Serial handler
@@ -512,8 +512,9 @@ class ProjectLauncherDashboard(BaseDashboard):
         try:
             self.log(f"Programming {project_name} to hardware on {port}")
             
-            # avrdude path (commonly installed location)
+            # avrdude path (prioritize local tools, then commonly installed locations)
             avrdude_paths = [
+                str(self.workspace_root / "tools" / "avrdudess" / "avrdude.exe"),
                 r"C:\Program Files (x86)\AVRDUDESS\avrdude.exe",
                 r"C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\avrdude.exe",
                 r"C:\avrdude\avrdude.exe"
