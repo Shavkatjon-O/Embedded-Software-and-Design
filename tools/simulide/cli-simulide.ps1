@@ -117,8 +117,9 @@ Write-Host "$ProjectDir" -ForegroundColor White
 if ([string]::IsNullOrEmpty($SimulIDEPath)) {
     Write-Host "🔍 Searching for SimulIDE..." -ForegroundColor $InfoColor
     
-    # If project is Graphics_Display, prefer old SimulIDE 0.4.15 which is known compatible
-    $PreferOldSimulIDE = ($ProjectName -eq "Graphics_Display")
+    # Use SimulIDE 1.1.0 by default (now fixed for ATmega128 ELPM support)
+    # NOTE: RAMPZ register fix applied to mega128.mcu makes 1.1.0 fully compatible
+    $PreferOldSimulIDE = $false
 
     # Build comprehensive search list with preference ordering
     $NewSimulIDEPaths = @(

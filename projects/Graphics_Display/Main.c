@@ -233,18 +233,18 @@ int main(void)
     init_devices();
 
     // IMPORTANT: Select ONE demo by uncommenting a single line below:
-    // 1) demo_header();              // Banner only (text basics)
-    // 2) demo_pixels_and_buffer();   // Pixels + buffer (checker pattern)
-    // 3) demo_page_addressing();     // Page/column addressing and CS1/CS2 split
-    // 4) demo_primitives();          // Lines, rectangle, circle, number
-    // 5) demo_radiating_lines();     // Radiating lines from center
-    // 6) demo_nested_rectangles();   // Inset rectangles
-    // 7) demo_concentric_circles();  // Multiple radii
-    // 8) demo_grid();                // 8x8 grid
-    // 9) demo_text_pages();          // Left/right text pages and symbols
-    // 10) run_all_demos();           // Cycle through all demos (default)
+    // demo_header();              // Banner only (text basics)
+    // demo_pixels_and_buffer();   // Pixels + buffer (checker pattern)
+    // demo_page_addressing();     // Page/column addressing and CS1/CS2 split
+    // demo_primitives();          // Lines, rectangle, circle, number
+    // demo_radiating_lines();     // Radiating lines from center
+    // demo_nested_rectangles();   // Inset rectangles
+    // demo_concentric_circles();  // Multiple radii
+    // demo_grid();                // 8x8 grid
+    // demo_text_pages();          // Left/right text pages and symbols
+    run_all_demos(); // Cycle through all demos (default)
 
-    run_all_demos(); // ← ACTIVE DEFAULT
+    // demo_header(); // ← TEST: Text display only for debugging
 
     while (1)
     { /* keep display */
