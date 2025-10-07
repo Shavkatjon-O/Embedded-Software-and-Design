@@ -47,7 +47,9 @@ if ($ProjectDir -like "*\projects\*") {
     elseif ($name -eq "Graphics_Display") {
         Write-Host "Building Graphics_Display with GLCD library..." -ForegroundColor Magenta
         # Graphics Display project uses GLCD library
-        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') Main.c `
+        # Add flag for newer SimulIDE versions (1.1.0+) that need different timing
+        $SimulIDENewFlag = "-DSIMULIDE_NEW_VERSION"
+        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') $SimulIDENewFlag Main.c `
             ../../shared_libs/_glcd.c `
             ../../shared_libs/_port.c `
             ../../shared_libs/_init.c `

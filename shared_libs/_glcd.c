@@ -13,9 +13,17 @@
 typedef unsigned char byte;
 typedef unsigned int word;
 
-#define D_BEFORE 2 // SimulIDE needs longer setup time
-#define D_AFTER 50 // SimulIDE needs longer hold time
-#define D_MIDDLE 1 // SimulIDE needs middle delay
+// SimulIDE version-adaptive timing
+// SimulIDE 1.1.0+ requires different timing than 0.4.15
+#ifdef SIMULIDE_NEW_VERSION
+    #define D_BEFORE 10 // SimulIDE 1.1.0+ needs longer setup time
+    #define D_AFTER 100 // SimulIDE 1.1.0+ needs much longer hold time
+    #define D_MIDDLE 5  // SimulIDE 1.1.0+ needs longer middle delay
+#else
+    #define D_BEFORE 2  // SimulIDE 0.4.15 original timing
+    #define D_AFTER 50  // SimulIDE 0.4.15 original timing  
+    #define D_MIDDLE 1  // SimulIDE 0.4.15 original timing
+#endif
 
 #define DISPON 0x3f
 #define DISPOFF 0x3e
