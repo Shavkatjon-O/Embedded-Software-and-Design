@@ -1,116 +1,21 @@
-# Prerequisites
-*.d
+# MINIMAL .gitignore - Include everything for complete portable system
+# Students get exact working copy with zero setup required
 
-# Object files
+# Only exclude temporary build artifacts that are regenerated
 *.o
-*.ko
-*.obj
 *.elf
-
-# Linker output
-*.ilk
 *.map
-*.exp
 
-# Precompiled Headers
-*.gch
-*.pch
+# Only exclude user-specific VS Code settings
+.vscode/settings.json
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
-
-# debug information files
-*.dwo
-
-# VS Code MPLAB remnants (not needed for student environment)
-.vscode/Main.mplab.json
-.vscode/*.mplab*
-
-# Python virtual environments (students create these)
-.venv/
-venv/
-env/
-ENV/
-
-# Python cache and build files
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Data files created by examples
-*.csv
-*.json
-*.png
-sensor_*.txt
-atmega128_*.json
-
-# CMake build artifacts
-build/
-cmake/
-CMakeCache.txt
-CMakeFiles/
-
-# Legacy folders (removed during cleanup)
-python/
-python_env/
-projects_archive/
-
-# Visual Studio cache
-.vs/
-
-# Build logs and temporary files
-build.log
+# Only exclude runtime logs
 *.log
 
-# Old web dashboard (superseded by dashboards/)
-web_dashboard.py
+# Everything else is INCLUDED for complete portable system:
+# - Python virtual environments (.venv/, venv/, __pycache__/)
+# - All executable files (*.exe, *.dll)
+# - All toolchain binaries and libraries
+# - Complete SimulIDE installations
+# - All Python packages and dependencies
+# - Complete AVR toolchain with all components
