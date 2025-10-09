@@ -237,12 +237,12 @@ int main(void)
     // demo_pixels_and_buffer();   // Pixels + buffer (checker pattern)
     // demo_page_addressing();     // Page/column addressing and CS1/CS2 split
     // demo_primitives();          // Lines, rectangle, circle, number
-    // demo_radiating_lines();     // Radiating lines from center
+     demo_radiating_lines();     // Radiating lines from center
     // demo_nested_rectangles();   // Inset rectangles
     // demo_concentric_circles();  // Multiple radii
     // demo_grid();                // 8x8 grid
     // demo_text_pages();          // Left/right text pages and symbols
-    run_all_demos(); // Cycle through all demos (default)
+    // run_all_demos(); // Cycle through all demos (default)
 
     // demo_header(); // ← TEST: Text display only for debugging
 

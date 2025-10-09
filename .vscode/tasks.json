@@ -2,6 +2,71 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "SimulIDE: Configure TCP",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\tools\\cli\\cli-configure-simulide-tcp.ps1"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "SimulIDE: Start TCP Bridge",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\tools\\cli\\cli-start-tcp-bridge.ps1"
+            ],
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Serial: Run PowerShell TCP Client",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-NoExit",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\tools\\cli\\cli-run-serial-tcp-client.ps1"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "SimulIDE: Connect and Test (TCP)",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "SimulIDE: Configure TCP",
+                "SimulIDE: Start TCP Bridge",
+                "Serial: Run PowerShell TCP Client"
+            ],
+            "problemMatcher": []
+        },
+        {
             "label": "Build Current Project",
             "type": "shell",
             "command": "powershell.exe",

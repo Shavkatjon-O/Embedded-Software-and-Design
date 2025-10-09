@@ -1,26 +1,38 @@
-
-
 /*
- * ===========================================================================
- * PORT PROGRAMMING IN C - Level 1: Fundamentals
- * ATmega128 @ 16MHz
- * ===========================================================================
- * FOCUS: Learning port I/O operations using C language
+ * =============================================================================
+ * PORT I/O PROGRAMMING - EDUCATIONAL DEMONSTRATION
+ * =============================================================================
  *
- * This project teaches the SAME concepts as Port_Assembly, but in C.
- * Learn these concepts here first, then see how they translate to assembly!
+ * PROJECT: Port_Basic
+ * COURSE: SOC 3050 - Embedded Systems and Applications
+ * YEAR: 2025
+ * AUTHOR: Professor Hong Jeong
  *
- * KEY CONCEPTS:
- * 1. Writing to ports (like assembly OUT instruction)
- * 2. Reading from ports (like assembly IN instruction)
- * 3. Setting individual bits (like assembly SBI instruction)
- * 4. Clearing individual bits (like assembly CBI instruction)
- * 5. Testing bit conditions (like assembly SBIC/SBIS instructions)
+ * PURPOSE:
+ * Educational demonstration of ATmega128 port I/O operations in C language.
+ * Students learn fundamental concepts of digital I/O programming and bit manipulation.
  *
- * HARDWARE:
- * - ATmega128 @ 16MHz
- * - 8 LEDs on PORTB (PB0-PB7)
- * - 1 Button on PORTD.7 (active LOW with pull-up)
+ * EDUCATIONAL OBJECTIVES:
+ * 1. Master port direction configuration (DDR registers)
+ * 2. Learn output operations (PORT registers)
+ * 3. Understand input operations (PIN registers)
+ * 4. Practice bit manipulation techniques
+ * 5. Compare C vs Assembly port operations
+ *
+ * HARDWARE REQUIREMENTS:
+ * - ATmega128 microcontroller @ 16MHz
+ * - 8 LEDs connected to PORTB (PB0-PB7)
+ * - Push button on PORTD.7 (active LOW with pull-up)
+ * - Serial connection for debugging (9600 baud)
+ *
+ * LEARNING PROGRESSION:
+ * - Demo 1: Basic LED Control
+ * - Demo 2: LED Patterns and Animation
+ * - Demo 3: Button Input Processing
+ * - Demo 4: Combined Input/Output Operations
+ * - Demo 5: Advanced Bit Manipulation
+ *
+ * =============================================================================
  */
 
 #include "config.h"
@@ -378,7 +390,7 @@ int main(void)
     // demo_04_clear_bits();    // Learn clearing bits
     // demo_05_test_bit_clear();// Learn testing if bit is clear
     // demo_06_test_bit_set();  // Learn testing if bit is set
-    // demo_07_combined();      // See everything together
+    // demo_07_combined(); // See everything together
 
     return 0;
 }

@@ -970,7 +970,7 @@ int main(void)
     // ========================================
     // INTERRUPT DEMOS: CPU continues running
     // ========================================
-    demo_interrupt_echo(); // Demo 4: Real ISR echo (CPU free!) ← ACTIVE FOR TESTING
+    // demo_interrupt_echo(); // Demo 4: Real ISR echo (CPU free!) ← ACTIVE FOR TESTING
     // demo_interrupt_tx_queue(); // Demo 5: TX interrupt with buffering
     // demo_interrupt_bidirectional(); // Demo 6: Full duplex communication
     // demo_interrupt_commands(); // Demo 7: Real-time command processing
