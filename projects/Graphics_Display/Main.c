@@ -32,9 +32,36 @@
 #define GLCD_ROWS 64
 #define GLCD_COLS 128
 
-// Display strings (from manual)
+// Basic demo showing text and graphics primitives
+/* Graphics: Characters  */
 static char Dis_Scr_IO_ON1[] = {"O"};
 static char Dis_Scr[] = {"#$%&'()*+,-./0123456"};
+
+void main_graphics_basics(void)
+{
+    init_devices(); // initialize LCD
+    lcd_clear();
+
+    // Header section (from demo_header)
+    lcd_string(0, 0, "====================");
+    lcd_string(1, 0, "   ATmega128 GLCD   ");
+    lcd_string(2, 0, Dis_Scr);
+    lcd_string(6, 0, "SOC3050 Graphics");
+
+    // Graphics primitives section
+    GLCD_Line(30, 10, 40, 20);
+    GLCD_Rectangle(30, 31, 40, 41);
+    GLCD_Circle(35, 55, 5);
+
+    // Text and character display
+    lcd_string(4, 5, Dis_Scr_IO_ON1);
+    lcd_xy(4, 12);
+    GLCD_4DigitDecimal(1235);
+
+    _delay_ms(100);
+}
+
+// Display strings (from manual) - removed duplicate declarations
 
 static void demo_header(void)
 {
@@ -233,11 +260,12 @@ int main(void)
     init_devices();
 
     // IMPORTANT: Select ONE demo by uncommenting a single line below:
+    main_graphics_basics(); // Merged header and graphics basics demo
     // demo_header();              // Banner only (text basics)
     // demo_pixels_and_buffer();   // Pixels + buffer (checker pattern)
     // demo_page_addressing();     // Page/column addressing and CS1/CS2 split
     // demo_primitives();          // Lines, rectangle, circle, number
-     demo_radiating_lines();     // Radiating lines from center
+    // demo_radiating_lines();     // Radiating lines from center
     // demo_nested_rectangles();   // Inset rectangles
     // demo_concentric_circles();  // Multiple radii
     // demo_grid();                // 8x8 grid
