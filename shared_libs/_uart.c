@@ -21,7 +21,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-
 #ifndef F_CPU
 #define F_CPU 16000000UL
 #endif
@@ -93,13 +92,6 @@ void Uart1_init(void)
 	// LDI R16, LOW(103); STS UBRR1L, R16
 	UBRR1H = (uart_baud_register >> 8); // High byte of baud rate register
 	UBRR1L = uart_baud_register;		// Low byte of baud rate register
-
-	// RX interrupt will call ISR directly (no interrupt manager)
-// Direct RX ISR handler (no interrupt manager)
-ISR(USART1_RX_vect)
-{
-	uart_rx_interrupt_handler();
-}
 }
 
 /*
@@ -407,15 +399,9 @@ unsigned int H2C(unsigned char ch)
 }
 
 /*
- * Legacy ISR for USART0 (if needed for compatibility)
- * Note: Most examples use USART1, but some may reference USART0
+ * Note: No ISR definitions are provided here. Applications should define
+ * ISR(USART1_RX_vect) locally and call uart_rx_interrupt_handler() if desired.
  */
-ISR(USART0_RX_vect)
-{
-	// Basic compatibility ISR - can be expanded if needed
-	volatile unsigned char dummy = UDR0;
-	(void)dummy; // Suppress unused variable warning
-}
 
 /*
  * Educational main function prototypes (implemented in separate main_*.c files)

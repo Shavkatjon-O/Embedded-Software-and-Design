@@ -109,9 +109,8 @@ void main_serial_sentence(void);            // Sentence processing
 void Serial_Main(void);                     // Main serial demonstration
 
 /*
- * Interrupt Service Routine Declarations
+ * Note: ISRs are not declared or defined in this header or library.
+ * Applications should define ISR(USART1_RX_vect) locally if using RX interrupts.
  */
-void __vector_30(void) __attribute__((signal, __INTR_ATTRS)); // USART1_RX_vect
-void __vector_18(void) __attribute__((signal, __INTR_ATTRS)); // USART0_RX_vect (compatibility)
 
 #endif // _UART_H_

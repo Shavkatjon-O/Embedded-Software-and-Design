@@ -95,8 +95,8 @@ void main_timer2_real_time_clock(void); // Real-time clock example
 void main_timer2_scheduler(void);       // Task scheduler example
 
 /*
- * Interrupt Service Routine Declaration
+ * Interrupt callback to be called from the application's ISR(TIMER2_OVF_vect)
  */
-void __vector_4(void) __attribute__((signal, __INTR_ATTRS)); // TIMER2_OVF_vect
+void Timer2_ovf_handler(void);
 
 #endif // _TIMER2_H_

@@ -186,7 +186,7 @@ void lab_ex1_multi_interrupt(void)
  */
 
 volatile uint8_t debounce_timer = 0;
-volatile uint8_t button_pressed = 0;
+volatile uint8_t button_pressed_flag = 0;
 
 ISR(TIMER0_OVF_vect)
 {
@@ -202,7 +202,7 @@ ISR(INT2_vect)
     // Debounced button handler
     if (debounce_timer == 0)
     {
-        button_pressed = 1;
+        button_pressed_flag = 1;
         int2_count++;
         debounce_timer = 20; // 20ms debounce period
     }
@@ -236,13 +236,13 @@ void lab_ex2_software_debounce(void)
 
     int2_count = 0;
     debounce_timer = 0;
-    button_pressed = 0;
+    button_pressed_flag = 0;
 
     while (1)
     {
-        if (button_pressed)
+        if (button_pressed_flag)
         {
-            button_pressed = 0;
+            button_pressed_flag = 0;
             LED_PORT ^= (1 << 2); // Toggle LED
 
             char msg[50];

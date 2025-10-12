@@ -275,27 +275,11 @@ void Interrupt_reset_statistics(void)
  *
  * VECTOR: INT0_vect (highest priority external interrupt)
  */
-ISR(INT0_vect)
-{
-	/* Update statistics atomically */
-	int0_count++;
-	total_interrupts++;
-	last_interrupt = 0; // Indicate INT0 was last triggered
-
-/* Optional: Send notification via UART for debugging */
-#ifdef INTERRUPT_DEBUG_UART
-	putch_USART1('A'); // Send 'A' to indicate INT0 triggered
-#endif
-
-	/*
-	 * EDUCATIONAL NOTE:
-	 * This ISR demonstrates:
-	 * - Minimal processing time
-	 * - Statistical data collection
-	 * - Optional debugging output
-	 * - Proper variable access (volatile globals)
-	 */
-}
+/*
+ * Note: No ISR definitions provided in shared library.
+ * Applications should define ISR(INT0_vect) and ISR(INT1_vect) locally and
+ * may update statistics via provided APIs if desired.
+ */
 
 /*
  * EDUCATIONAL ISR: External Interrupt 1 Handler
@@ -305,26 +289,7 @@ ISR(INT0_vect)
  *
  * VECTOR: INT1_vect (second priority external interrupt)
  */
-ISR(INT1_vect)
-{
-	/* Update statistics atomically */
-	int1_count++;
-	total_interrupts++;
-	last_interrupt = 1; // Indicate INT1 was last triggered
-
-/* Optional: Send notification via UART for debugging */
-#ifdef INTERRUPT_DEBUG_UART
-	putch_USART1('B'); // Send 'B' to indicate INT1 triggered
-#endif
-
-	/*
-	 * EDUCATIONAL NOTE:
-	 * Multiple interrupt sources can be handled similarly:
-	 * - Each ISR updates relevant statistics
-	 * - Common pattern for event counting
-	 * - Enables system monitoring and debugging
-	 */
-}
+/* See note above about ISR definitions. */
 
 /*
  * =============================================================================

@@ -169,115 +169,9 @@ void Timer2_init(void)
 	 * - Prescaler: 64 (250kHz timer frequency)
 	 * - Period: ~1ms per overflow
 	 * - Interrupt: Enabled on overflow
+	 * ISR removed from shared library. Applications should define
+	 * ISR(TIMER2_OVF_vect) and call Timer2_ovf_handler().
 	 */
-}
-
-/*
- * EDUCATIONAL FUNCTION: Timer2 Start
- *
- * PURPOSE: Start or resume Timer2 operation
- * LEARNING: Shows dynamic timer control
- */
-void Timer2_start(void)
-{
-	TCCR2 = timer2_prescaler; // Start timer with current prescaler
-}
-
-/*
- * EDUCATIONAL FUNCTION: Timer2 Stop
- *
- * PURPOSE: Stop Timer2 operation
- * LEARNING: Shows timer pause functionality
- */
-void Timer2_stop(void)
-{
-	TCCR2 = TIMER2_STOP; // Stop timer by clearing clock source
-}
-
-/*
- * EDUCATIONAL FUNCTION: Set Timer2 Prescaler
- *
- * PURPOSE: Change timer frequency for different timing requirements
- * LEARNING: Shows dynamic timing adjustment
- */
-void Timer2_set_prescaler(unsigned char prescaler)
-{
-	timer2_prescaler = prescaler;
-	if (TCCR2 != TIMER2_STOP) // If timer is running
-	{
-		TCCR2 = prescaler; // Apply new prescaler immediately
-	}
-}
-
-/*
- * EDUCATIONAL FUNCTION: Set Timer2 Period
- *
- * PURPOSE: Configure timer for specific time intervals
- * LEARNING: Shows timing calculations and customization
- */
-void Timer2_set_period_ms(unsigned int period_ms)
-{
-	/*
-	 * This is a simplified approach
-	 * For precise timing, complex calculations would be needed
-	 * considering prescaler and desired period
-	 */
-	if (period_ms <= 1)
-	{
-		timer2_start_value = TIMER2_1MS_START;
-		timer2_prescaler = TIMER2_PRESCALE_64;
-	}
-	else if (period_ms <= 5)
-	{
-		timer2_start_value = TIMER2_5MS_START;
-		timer2_prescaler = TIMER2_PRESCALE_256;
-	}
-	else
-	{
-		timer2_start_value = TIMER2_10MS_START;
-		timer2_prescaler = TIMER2_PRESCALE_1024;
-	}
-
-	TCNT2 = timer2_start_value;
-	TCCR2 = timer2_prescaler;
-}
-
-/*
- * EDUCATIONAL FUNCTION: Get System Uptime
- *
- * PURPOSE: Provide system timing reference
- * LEARNING: Shows time keeping and system services
- */
-unsigned long Timer2_get_milliseconds(void)
-{
-	return system_milliseconds;
-}
-
-/*
- * EDUCATIONAL FUNCTION: Delay Using Timer2
- *
- * PURPOSE: Non-blocking delay using timer reference
- * LEARNING: Shows alternative to blocking _delay_ms()
- */
-unsigned char Timer2_delay_ms(unsigned int delay_ms)
-{
-	static unsigned long start_time = 0;
-	static unsigned char delay_active = 0;
-
-	if (!delay_active)
-	{
-		start_time = system_milliseconds;
-		delay_active = 1;
-		return 0; // Delay started
-	}
-
-	if ((system_milliseconds - start_time) >= delay_ms)
-	{
-		delay_active = 0;
-		return 1; // Delay completed
-	}
-
-	return 0; // Delay in progress
 }
 
 /*
@@ -311,7 +205,7 @@ unsigned char Timer2_delay_ms(unsigned int delay_ms)
  * POP SREG, R1, R0, etc.       ; Restore context
  * RETI                         ; Return from interrupt
  */
-ISR(TIMER2_OVF_vect)
+void Timer2_ovf_handler(void)
 {
 	/*
 	 * STEP 1: Reload timer start value
@@ -391,23 +285,9 @@ ISR(TIMER2_OVF_vect)
  * NOTE: This would be used in CTC (Clear Timer on Compare) mode
  * Currently commented out as we're using overflow mode
  */
-/*
-ISR(TIMER2_COMP_vect)
-{
-	// Compare match occurred
-	// Timer automatically resets to 0 in CTC mode
-	// No need to reload TCNT2
-
-	system_milliseconds++;
-	Count_Of_Timer2++;
-
-	if (Count_Of_Timer2 >= Time_Of_Timer2)
-	{
-		Task1_Of_Timer2 = 1;
-		Count_Of_Timer2 = 0;
-	}
-}
-*/
+/* Compare Match ISR intentionally not provided in the library.
+ * Applications using CTC mode should define ISR(TIMER2_COMP_vect)
+ * locally and call appropriate helper functions if needed. */
 
 /*
  * EDUCATIONAL FUNCTION: Task Management Helpers
