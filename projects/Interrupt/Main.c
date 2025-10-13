@@ -323,8 +323,8 @@ int main(void)
     // ========================================================================
     // Choose ONE demo by uncommenting the appropriate function call below.
 
-    demo_polling(); // DEMO 1: Polling method (check PD1 continuously)
-    // demo_interrupt(); // DEMO 2: Interrupt method (respond to PD0 events)
+    // demo_polling(); // DEMO 1: Polling method (check PD1 continuously)
+    demo_interrupt(); // DEMO 2: Interrupt method (respond to PD0 events)
 
     // ========================================================================
     // EXPERIMENT SUGGESTIONS FOR STUDENTS
