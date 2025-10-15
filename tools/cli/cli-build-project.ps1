@@ -13,10 +13,10 @@ $portableAvrObjcopy = Join-Path $WorkspaceRoot "tools\avr-toolchain\bin\avr-objc
 if (Test-Path $portableAvrGcc) {
     $avrGccExe = $portableAvrGcc
     $avrObjcopyExe = $portableAvrObjcopy
-    Write-Host "✅ Using portable AVR toolchain" -ForegroundColor Green
+    Write-Host "[OK] Using portable AVR toolchain" -ForegroundColor Green
 }
 else {
-    Write-Host "❌ PORTABLE SYSTEM ERROR: AVR toolchain not found!" -ForegroundColor Red
+    Write-Host "[ERROR] PORTABLE SYSTEM ERROR: AVR toolchain not found!" -ForegroundColor Red
     Write-Host "Expected location: $portableAvrGcc" -ForegroundColor Yellow
     Write-Host "This system requires NO external installations - all tools should be included." -ForegroundColor Yellow
     Write-Host "Please ensure the tools/avr-toolchain directory is complete." -ForegroundColor Yellow

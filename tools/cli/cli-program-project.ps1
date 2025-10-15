@@ -18,14 +18,14 @@ function Find-ArduinoPort {
     $availablePorts = [System.IO.Ports.SerialPort]::getportnames() | Sort-Object
     
     if ($availablePorts.Count -eq 0) {
-        Write-Host "❌ No COM ports found!" -ForegroundColor Red
+        Write-Host "[ERROR] No COM ports found!" -ForegroundColor Red
         Write-Host "   Please check if Arduino/programmer is connected" -ForegroundColor Yellow
         return $null
     }
     
     Write-Host "Available COM ports:" -ForegroundColor Green
     foreach ($port in $availablePorts) {
-        Write-Host "  📌 $port" -ForegroundColor White
+        Write-Host "  [PORT] $port" -ForegroundColor White
     }
     
     # For Arduino programmer, try to auto-detect
@@ -35,15 +35,15 @@ function Find-ArduinoPort {
         try {
             $deviceInfo = Get-WmiObject -Class Win32_SerialPort | Where-Object { $_.DeviceID -eq $singlePort }
             if ($deviceInfo -and ($deviceInfo.Description -match "com0com|Virtual|Emulator|Loopback")) {
-                Write-Host "⚠️ Only port found is virtual: $singlePort ($($deviceInfo.Description))" -ForegroundColor Yellow
-                Write-Host "❌ No real Arduino device detected. Please connect Arduino and try again." -ForegroundColor Red
+                Write-Host "[WARNING] Only port found is virtual: $singlePort ($($deviceInfo.Description))" -ForegroundColor Yellow
+                Write-Host "[ERROR] No real Arduino device detected. Please connect Arduino and try again." -ForegroundColor Red
                 return $null
             }
         }
         catch {
             # If WMI fails, assume it's a real port
         }
-        Write-Host "✅ Auto-detected: $singlePort (only available port)" -ForegroundColor Green
+        Write-Host "[OK] Auto-detected: $singlePort (only available port)" -ForegroundColor Green
         return $singlePort
     }
     
@@ -54,17 +54,17 @@ function Find-ArduinoPort {
             $deviceInfo = Get-WmiObject -Class Win32_SerialPort | Where-Object { $_.DeviceID -eq $port }
             if ($deviceInfo) {
                 $description = $deviceInfo.Description
-                Write-Host "  🔍 $port`: $description" -ForegroundColor Gray
+                Write-Host "  [CHECK] $port`: $description" -ForegroundColor Gray
                 
                 # Exclude virtual/emulator ports
                 if ($description -match "com0com|Virtual|Emulator|Loopback") {
-                    Write-Host "    ⏭️ Skipping virtual port: $port" -ForegroundColor Yellow
+                    Write-Host "    [SKIP] Skipping virtual port: $port" -ForegroundColor Yellow
                     continue
                 }
                 
                 # Look for real Arduino/USB devices
                 if ($description -match "Arduino|CH340|CP210|FTDI|USB.*Serial") {
-                    Write-Host "✅ Auto-detected: $port ($description)" -ForegroundColor Green
+                    Write-Host "[OK] Auto-detected: $port ($description)" -ForegroundColor Green
                     return $port
                 }
             }
@@ -84,7 +84,8 @@ function Find-ArduinoPort {
                     $realPorts += $port
                     Write-Host "  📍 Real port found: $port ($($deviceInfo.Description))" -ForegroundColor Cyan
                 }
-            } else {
+            }
+            else {
                 # If no WMI info, assume it might be real
                 $realPorts += $port
             }
@@ -97,13 +98,13 @@ function Find-ArduinoPort {
     
     if ($realPorts.Count -gt 0) {
         $detectedPort = $realPorts[0]
-        Write-Host "⚠️  No Arduino detected, using first real port: $detectedPort" -ForegroundColor Yellow
+        Write-Host "[WARNING] No Arduino detected, using first real port: $detectedPort" -ForegroundColor Yellow
         Write-Host "   If this fails, manually specify: -Port COM#" -ForegroundColor Yellow
         return $detectedPort
     }
     
     # Last resort: no real ports found
-    Write-Host "❌ No real Arduino/serial devices detected!" -ForegroundColor Red
+    Write-Host "[ERROR] No real Arduino/serial devices detected!" -ForegroundColor Red
     Write-Host "   Available ports are virtual/emulators:" -ForegroundColor Yellow
     foreach ($port in $availablePorts) {
         Write-Host "     $port (virtual)" -ForegroundColor Gray
@@ -124,13 +125,15 @@ $systemAvrGcc = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu
 if (Test-Path $portableAvrGcc) {
     $avrGccExe = $portableAvrGcc
     $avrObjcopyExe = Join-Path $WorkspaceRoot "tools\avr-toolchain\bin\avr-objcopy.exe"
-    Write-Host "✅ Using portable AVR toolchain" -ForegroundColor Green
-} elseif (Test-Path $systemAvrGcc) {
+    Write-Host "[OK] Using portable AVR toolchain" -ForegroundColor Green
+}
+elseif (Test-Path $systemAvrGcc) {
     $avrGccExe = $systemAvrGcc
     $avrObjcopyExe = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe"
-    Write-Host "✅ Using system AVR toolchain (Atmel Studio)" -ForegroundColor Yellow
-} else {
-    Write-Host "❌ No AVR toolchain found! Please install Atmel Studio or portable AVR toolchain." -ForegroundColor Red
+    Write-Host "[OK] Using system AVR toolchain (Atmel Studio)" -ForegroundColor Yellow
+}
+else {
+    Write-Host "[ERROR] No AVR toolchain found! Please install Atmel Studio or portable AVR toolchain." -ForegroundColor Red
     exit 1
 }
 
@@ -175,17 +178,17 @@ if ($ProjectDir -like '*\projects\*' -or $ProjectDir -like '*\Main') {
     
     # Check portable AVRDUDE first, fallback to system if needed
     if (-not (Test-Path $avrdudeExe)) {
-        Write-Host "❌ Portable AVRDUDE not found: $avrdudeExe" -ForegroundColor Red
+        Write-Host "[ERROR] Portable AVRDUDE not found: $avrdudeExe" -ForegroundColor Red
         Write-Host "   Falling back to system AVRDUDE..." -ForegroundColor Yellow
         $avrdudeExe = "C:\Program Files (x86)\AVRDUDESS\avrdude.exe"
         
         if (-not (Test-Path $avrdudeExe)) {
-            Write-Host "❌ System AVRDUDE also not found!" -ForegroundColor Red
+            Write-Host "[ERROR] System AVRDUDE also not found!" -ForegroundColor Red
             exit 1
         }
     }
     
-    Write-Host "✅ Using AVRDUDE: $avrdudeExe" -ForegroundColor Green
+    Write-Host "[OK] Using AVRDUDE: $avrdudeExe" -ForegroundColor Green
     
     # Check for Debug folder hex file first, then main folder
     $debugHexFile = "Debug\Main.hex"
@@ -212,13 +215,13 @@ if ($ProjectDir -like '*\projects\*' -or $ProjectDir -like '*\Main') {
     
     # Auto-detect COM port if needed (for arduino, avrisp, stk500v2 programmers)
     if ($Programmer.ToLower() -in @("arduino", "avrisp", "stk500v2") -and [string]::IsNullOrEmpty($Port)) {
-        Write-Host "🔍 Auto-detecting COM port..." -ForegroundColor Cyan
+        Write-Host "[CHECK] Auto-detecting COM port..." -ForegroundColor Cyan
         $Port = Find-ArduinoPort
         if ([string]::IsNullOrEmpty($Port)) {
-            Write-Host "❌ Could not auto-detect COM port. Please specify -Port parameter." -ForegroundColor Red
+            Write-Host "[ERROR] Could not auto-detect COM port. Please specify -Port parameter." -ForegroundColor Red
             exit 1
         }
-        Write-Host "✅ Using auto-detected port: $Port" -ForegroundColor Green
+        Write-Host "[OK] Using auto-detected port: $Port" -ForegroundColor Green
     }
     
     switch ($Programmer.ToLower()) {

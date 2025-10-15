@@ -73,7 +73,7 @@ $ProjectName = Split-Path $ProjectDir -Leaf
 
 # Smart project detection for non-project directories
 if (-not (Test-Path $ProjectDir) -or -not (Test-Path (Join-Path $ProjectDir "Main.c"))) {
-    Write-Host "⚠️  Not in a valid project directory. Searching for recent projects..." -ForegroundColor $WarningColor
+    Write-Host "[WARNING] Not in a valid project directory. Searching for recent projects..." -ForegroundColor $WarningColor
     
     # Try to find the most recently modified project
     $ProjectsDir = Join-Path $WorkspaceRoot "projects"
@@ -85,7 +85,7 @@ if (-not (Test-Path $ProjectDir) -or -not (Test-Path (Join-Path $ProjectDir "Mai
         
         if ($RecentProjects) {
             Write-Host ""
-            Write-Host "📁 Available projects:" -ForegroundColor $InfoColor
+            Write-Host "[PROJECTS] Available projects:" -ForegroundColor $InfoColor
             for ($i = 0; $i -lt $RecentProjects.Count; $i++) {
                 $project = $RecentProjects[$i]
                 Write-Host "  $($i + 1). $($project.Name)" -ForegroundColor White
@@ -94,28 +94,30 @@ if (-not (Test-Path $ProjectDir) -or -not (Test-Path (Join-Path $ProjectDir "Mai
             
             # Auto-select the most recent project
             $ProjectDir = $RecentProjects[0].FullName
-            Write-Host "🎯 Auto-selecting most recent: $($RecentProjects[0].Name)" -ForegroundColor $SuccessColor
-        } else {
-            Write-Host "❌ Error: No projects found with Main.c files" -ForegroundColor $ErrorColor
+            Write-Host "[AUTO] Auto-selecting most recent: $($RecentProjects[0].Name)" -ForegroundColor $SuccessColor
+        }
+        else {
+            Write-Host "[ERROR] Error: No projects found with Main.c files" -ForegroundColor $ErrorColor
             exit 1
         }
-    } else {
-        Write-Host "❌ Error: Projects directory not found: $ProjectsDir" -ForegroundColor $ErrorColor
+    }
+    else {
+        Write-Host "[ERROR] Error: Projects directory not found: $ProjectsDir" -ForegroundColor $ErrorColor
         exit 1
     }
 }
 
 if (-not (Test-Path $ProjectDir)) {
-    Write-Host "❌ Error: Project directory not found: $ProjectDir" -ForegroundColor $ErrorColor
+    Write-Host "[ERROR] Error: Project directory not found: $ProjectDir" -ForegroundColor $ErrorColor
     exit 1
 }
 
-Write-Host "📁 Project: " -NoNewline -ForegroundColor $InfoColor
+Write-Host "[PROJECT] Project: " -NoNewline -ForegroundColor $InfoColor
 Write-Host "$ProjectDir" -ForegroundColor White
 
 # Find SimulIDE executable
 if ([string]::IsNullOrEmpty($SimulIDEPath)) {
-    Write-Host "🔍 Searching for SimulIDE..." -ForegroundColor $InfoColor
+    Write-Host "[SEARCH] Searching for SimulIDE..." -ForegroundColor $InfoColor
     
     # Use SimulIDE 1.1.0 by default (now fixed for ATmega128 ELPM support)
     # NOTE: RAMPZ register fix applied to mega128.mcu makes 1.1.0 fully compatible
@@ -143,7 +145,8 @@ if ([string]::IsNullOrEmpty($SimulIDEPath)) {
     $PossiblePaths = @()
     if ($PreferOldSimulIDE) {
         $PossiblePaths += $OldSimulIDEPaths + $NewSimulIDEPaths
-    } else {
+    }
+    else {
         $PossiblePaths += $NewSimulIDEPaths + $OldSimulIDEPaths
     }
 
@@ -156,7 +159,7 @@ if ([string]::IsNullOrEmpty($SimulIDEPath)) {
     foreach ($path in $PossiblePaths) {
         if (Test-Path $path) {
             $SimulIDEPath = $path
-            Write-Host "   ✅ Found: " -NoNewline -ForegroundColor $SuccessColor
+            Write-Host "   [OK] Found: " -NoNewline -ForegroundColor $SuccessColor
             Write-Host "$SimulIDEPath" -ForegroundColor White
             break
         }
@@ -164,7 +167,7 @@ if ([string]::IsNullOrEmpty($SimulIDEPath)) {
 }
 
 if ([string]::IsNullOrEmpty($SimulIDEPath) -or -not (Test-Path $SimulIDEPath)) {
-    Write-Host "❌ Error: SimulIDE executable not found!" -ForegroundColor $ErrorColor
+    Write-Host "[ERROR] Error: SimulIDE executable not found!" -ForegroundColor $ErrorColor
     Write-Host ""
     Write-Host "Please download SimulIDE 1.1.0-SR1 from:" -ForegroundColor $WarningColor
     Write-Host "   https://simulide.com/p/downloads/" -ForegroundColor White
@@ -181,12 +184,12 @@ if ([string]::IsNullOrEmpty($SimulIDEPath) -or -not (Test-Path $SimulIDEPath)) {
     exit 1
 }
 
-Write-Host "🔧 SimulIDE: " -NoNewline -ForegroundColor $InfoColor
+Write-Host "[CONFIG] SimulIDE: " -NoNewline -ForegroundColor $InfoColor
 Write-Host "$SimulIDEPath" -ForegroundColor White
 
 # Build project if requested
 if ($BuildFirst) {
-    Write-Host "`n🛠 Building project..." -ForegroundColor $InfoColor
+    Write-Host "`n[BUILD] Building project..." -ForegroundColor $InfoColor
     
     # Correct build script path inside tools/cli
     $BuildScript = Join-Path $WorkspaceRoot "tools\cli\cli-build-project.ps1"
@@ -195,12 +198,12 @@ if ($BuildFirst) {
         & $BuildScript -ProjectDir $ProjectDir
         
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "❌ Build failed!" -ForegroundColor $ErrorColor
+            Write-Host "[ERROR] Build failed!" -ForegroundColor $ErrorColor
             exit 1
         }
     }
     else {
-        Write-Host "⚠️  Warning: Build script not found, skipping build" -ForegroundColor $WarningColor
+        Write-Host "[WARNING] Warning: Build script not found, skipping build" -ForegroundColor $WarningColor
     }
 }
 
@@ -208,7 +211,7 @@ if ($BuildFirst) {
 $HexFile = Join-Path $ProjectDir "Main.hex"
 
 if (-not (Test-Path $HexFile)) {
-    Write-Host "❌ Error: HEX file not found: $HexFile" -ForegroundColor $ErrorColor
+    Write-Host "[ERROR] Error: HEX file not found: $HexFile" -ForegroundColor $ErrorColor
     
     if ($BuildFirst) {
         Write-Host "   Build completed but HEX file is missing" -ForegroundColor $WarningColor
@@ -221,12 +224,12 @@ if (-not (Test-Path $HexFile)) {
     exit 1
 }
 
-Write-Host "✅ HEX file: " -NoNewline -ForegroundColor $SuccessColor
+Write-Host "[OK] HEX file: " -NoNewline -ForegroundColor $SuccessColor
 Write-Host "$HexFile" -ForegroundColor White
 
 # Determine circuit file with auto-detection
 if ([string]::IsNullOrEmpty($CircuitFile)) {
-    Write-Host "🔍 Searching for circuit file..." -ForegroundColor $InfoColor
+    Write-Host "[SEARCH] Searching for circuit file..." -ForegroundColor $InfoColor
     Write-Host "   Priority: tools/simulide/Simulator.simu (official circuit)" -ForegroundColor $InfoColor
 
     # Prefer versioned circuit if running old SimulIDE
@@ -263,13 +266,13 @@ if ([string]::IsNullOrEmpty($CircuitFile)) {
     foreach ($circuit in $PossibleCircuits) {
         if (Test-Path $circuit) {
             $CircuitFile = $circuit
-            Write-Host "   ✅ Found: " -NoNewline -ForegroundColor $SuccessColor
+            Write-Host "   [OK] Found: " -NoNewline -ForegroundColor $SuccessColor
             Write-Host "$CircuitFile" -ForegroundColor White
             if ($PreferOldCircuit -and $CircuitFile -like "*Simulator0415.simu") {
-                Write-Host "   🎯 Using 0.4.15-specific circuit (best compatibility)" -ForegroundColor $SuccessColor
+                Write-Host "   [TARGET] Using 0.4.15-specific circuit (best compatibility)" -ForegroundColor $SuccessColor
             }
             elseif ($CircuitFile -like "*tools\simulide\Simulator.simu") {
-                Write-Host "   🎯 Using official circuit file (recommended)" -ForegroundColor $SuccessColor
+                Write-Host "   [TARGET] Using official circuit file (recommended)" -ForegroundColor $SuccessColor
             }
             break
         }
@@ -277,12 +280,12 @@ if ([string]::IsNullOrEmpty($CircuitFile)) {
 }
 
 if ([string]::IsNullOrEmpty($CircuitFile) -or -not (Test-Path $CircuitFile)) {
-    Write-Host "❌ Error: Circuit file not found!" -ForegroundColor $ErrorColor
+    Write-Host "[ERROR] Error: Circuit file not found!" -ForegroundColor $ErrorColor
     Write-Host ""
     Write-Host "Please ensure the official SimulIDE circuit file exists:" -ForegroundColor $WarningColor
     Write-Host ""
     Write-Host "Required:" -ForegroundColor $InfoColor
-    Write-Host "   📂 $WorkspaceRoot\tools\simulide\Simulator.simu (official circuit)" -ForegroundColor White
+    Write-Host "   [PATH] $WorkspaceRoot\tools\simulide\Simulator.simu (official circuit)" -ForegroundColor White
     Write-Host ""
     Write-Host "Alternative options:" -ForegroundColor $InfoColor
     Write-Host "   1. Check if tools/simulide/Simulator.simu exists in workspace" -ForegroundColor White
@@ -294,11 +297,11 @@ if ([string]::IsNullOrEmpty($CircuitFile) -or -not (Test-Path $CircuitFile)) {
     exit 1
 }
 
-Write-Host "📐 Circuit: " -NoNewline -ForegroundColor $InfoColor
+Write-Host "[CIRCUIT] Circuit: " -NoNewline -ForegroundColor $InfoColor
 Write-Host "$CircuitFile" -ForegroundColor White
 
 # Update the main circuit file directly (no temporary file)
-Write-Host "`n🔄 Updating main circuit file..." -ForegroundColor $InfoColor
+Write-Host "`n[UPDATE] Updating main circuit file..." -ForegroundColor $InfoColor
 
 # Use the main Simulator.simu file directly
 $MainCircuitFile = $CircuitFile
@@ -307,7 +310,7 @@ $MainCircuitFile = $CircuitFile
 $BackupCircuitFile = $CircuitFile -replace '\.simu$', '_backup.simu'
 if (-not (Test-Path $BackupCircuitFile)) {
     Copy-Item $CircuitFile $BackupCircuitFile
-    Write-Host "   📋 Created backup: $BackupCircuitFile" -ForegroundColor $InfoColor
+    Write-Host "   [BACKUP] Created backup: $BackupCircuitFile" -ForegroundColor $InfoColor
 }
 
 # Function to calculate relative path (compatible with PowerShell 5.1)
@@ -343,7 +346,7 @@ try {
     
     # Verify circuit file contains ATmega128 MCU
     if ($CircuitContent -notmatch 'itemtype="MCU"') {
-        Write-Host "   ⚠️  Warning: Circuit file doesn't contain MCU component" -ForegroundColor $WarningColor
+        Write-Host "   [WARNING] Warning: Circuit file doesn't contain MCU component" -ForegroundColor $WarningColor
         Write-Host "      SimulIDE may not load the firmware automatically" -ForegroundColor $WarningColor
     }
     
@@ -351,22 +354,22 @@ try {
     if ($CircuitContent -match 'Program="[^"]*"') {
         $OldPath = $Matches[0]
         $CircuitContent = $CircuitContent -replace 'Program="[^"]*"', "Program=`"$AbsoluteHexPath`""
-        Write-Host "   ✅ Updated MCU program path" -ForegroundColor $SuccessColor
+        Write-Host "   [OK] Updated MCU program path" -ForegroundColor $SuccessColor
         Write-Host "      Old: $OldPath" -ForegroundColor Gray
         Write-Host "      New: Program=`"$AbsoluteHexPath`"" -ForegroundColor Gray
     }
     else {
-        Write-Host "   ⚠️  Warning: Could not find Program attribute in circuit" -ForegroundColor $WarningColor
+        Write-Host "   [WARNING] Warning: Could not find Program attribute in circuit" -ForegroundColor $WarningColor
         Write-Host "      You may need to manually load firmware in SimulIDE" -ForegroundColor $WarningColor
     }
     
     # Enable Auto_Load
     if ($CircuitContent -match 'Auto_Load="false"') {
         $CircuitContent = $CircuitContent -replace 'Auto_Load="false"', 'Auto_Load="true"'
-        Write-Host "   ✅ Enabled Auto_Load" -ForegroundColor $SuccessColor
+        Write-Host "   [OK] Enabled Auto_Load" -ForegroundColor $SuccessColor
     }
     elseif ($CircuitContent -match 'Auto_Load="true"') {
-        Write-Host "   ✅ Auto_Load already enabled" -ForegroundColor $SuccessColor
+        Write-Host "   [OK] Auto_Load already enabled" -ForegroundColor $SuccessColor
     }
     
     # Save updated circuit file directly
@@ -378,7 +381,7 @@ try {
             throw "Failed to update main circuit file"
         }
         
-        Write-Host "   ✅ Updated main circuit: $MainCircuitFile" -ForegroundColor $SuccessColor
+        Write-Host "   [OK] Updated main circuit: $MainCircuitFile" -ForegroundColor $SuccessColor
     }
     catch {
         throw "Failed to save main circuit file: $_"
@@ -386,12 +389,12 @@ try {
     
 }
 catch {
-    Write-Host "❌ Error updating circuit file: $_" -ForegroundColor $ErrorColor
+    Write-Host "[ERROR] Error updating circuit file: $_" -ForegroundColor $ErrorColor
     exit 1
 }
 
 # Launch SimulIDE
-Write-Host "`n🚀 Launching SimulIDE..." -ForegroundColor $SuccessColor
+Write-Host "`n[START] Launching SimulIDE..." -ForegroundColor $SuccessColor
 Write-Host "   Press Ctrl+C here to close this window (SimulIDE will keep running)" -ForegroundColor $WarningColor
 Write-Host ""
 
@@ -399,7 +402,7 @@ try {
     # Check if SimulIDE is already running
     $RunningSimulIDE = Get-Process -Name "simulide" -ErrorAction SilentlyContinue
     if ($RunningSimulIDE) {
-        Write-Host "ℹ️  SimulIDE is already running (PID: $($RunningSimulIDE.Id))" -ForegroundColor $InfoColor
+        Write-Host "[INFO] SimulIDE is already running (PID: $($RunningSimulIDE.Id))" -ForegroundColor $InfoColor
         Write-Host "   Using existing instance instead of opening new one..." -ForegroundColor $InfoColor
         Write-Host ""
         
@@ -422,27 +425,28 @@ try {
             if ($hwnd -ne [IntPtr]::Zero) {
                 [WindowHelper]::ShowWindow($hwnd, 9) # SW_RESTORE
                 [WindowHelper]::SetForegroundWindow($hwnd)
-                Write-Host "✅ Brought SimulIDE to front" -ForegroundColor $SuccessColor
-            } else {
-                Write-Host "⚠️  SimulIDE window handle not available" -ForegroundColor $WarningColor
+                Write-Host "[OK] Brought SimulIDE to front" -ForegroundColor $SuccessColor
+            }
+            else {
+                Write-Host "[WARNING] SimulIDE window handle not available" -ForegroundColor $WarningColor
             }
         }
         catch {
-            Write-Host "⚠️  Could not bring SimulIDE to front (this is normal)" -ForegroundColor $WarningColor
+            Write-Host "[WARNING] Could not bring SimulIDE to front (this is normal)" -ForegroundColor $WarningColor
         }
         
-        Write-Host "`n📋 To load your project:" -ForegroundColor $InfoColor
-        Write-Host "  1️⃣  In SimulIDE: File → Open → Select: $MainCircuitFile" -ForegroundColor White
-        Write-Host "  2️⃣  Or copy path: $MainCircuitFile" -ForegroundColor Gray
-        Write-Host "  3️⃣  Click Play button (▶) to start simulation" -ForegroundColor White
+        Write-Host "`n[LOAD] To load your project:" -ForegroundColor $InfoColor
+        Write-Host "  [1] In SimulIDE: File > Open > Select: $MainCircuitFile" -ForegroundColor White
+        Write-Host "  [2] Or copy path: $MainCircuitFile" -ForegroundColor Gray
+        Write-Host "  [3] Click Play button (PLAY) to start simulation" -ForegroundColor White
         Write-Host ""
-        Write-Host "💡 To force new instance, close SimulIDE first" -ForegroundColor $InfoColor
+        Write-Host "[INFO] To force new instance, close SimulIDE first" -ForegroundColor $InfoColor
         Write-Host ""
         return
     }
     
     # Launch new SimulIDE instance if none running
-    Write-Host "🚀 Launching new SimulIDE instance..." -ForegroundColor $InfoColor
+    Write-Host "[START] Launching new SimulIDE instance..." -ForegroundColor $InfoColor
     $Process = Start-Process -FilePath $SimulIDEPath -ArgumentList "`"$MainCircuitFile`"" -PassThru -ErrorAction Stop
     
     # Wait a moment to verify process started
@@ -452,26 +456,26 @@ try {
         throw "SimulIDE process exited immediately (exit code: $($Process.ExitCode))"
     }
     
-    Write-Host "✅ SimulIDE launched successfully! (PID: $($Process.Id))" -ForegroundColor $SuccessColor
-    Write-Host "`n📋 Next Steps:" -ForegroundColor $InfoColor
-    Write-Host "  1️⃣  Click the Play button (▶) to start simulation" -ForegroundColor White
-    Write-Host "  2️⃣  Interact with components (buttons, potentiometers, etc.)" -ForegroundColor White
-    Write-Host "  3️⃣  Double-click SerialTerm component to see UART output" -ForegroundColor White
+    Write-Host "[OK] SimulIDE launched successfully! (PID: $($Process.Id))" -ForegroundColor $SuccessColor
+    Write-Host "`n[NEXT] Next Steps:" -ForegroundColor $InfoColor
+    Write-Host "  [1] Click the Play button (PLAY) to start simulation" -ForegroundColor White
+    Write-Host "  [2] Interact with components (buttons, potentiometers, etc.)" -ForegroundColor White
+    Write-Host "  [3] Double-click SerialTerm component to see UART output" -ForegroundColor White
     Write-Host ""
-    Write-Host "💡 Troubleshooting:" -ForegroundColor $InfoColor
-    Write-Host "  • Firmware not loading? → Right-click ATmega128 → Properties" -ForegroundColor White
-    Write-Host "  • Need to reload? → Right-click ATmega128 → Load Firmware" -ForegroundColor White
-    Write-Host "  • Reset MCU → Press Ctrl+R in SimulIDE" -ForegroundColor White
-    Write-Host "  • Circuit file: $MainCircuitFile" -ForegroundColor Gray
+    Write-Host "[HELP] Troubleshooting:" -ForegroundColor $InfoColor
+    Write-Host "  - Firmware not loading? > Right-click ATmega128 > Properties" -ForegroundColor White
+    Write-Host "  - Need to reload? > Right-click ATmega128 > Load Firmware" -ForegroundColor White
+    Write-Host "  - Reset MCU > Press Ctrl+R in SimulIDE" -ForegroundColor White
+    Write-Host "  - Circuit file: $MainCircuitFile" -ForegroundColor Gray
     Write-Host ""
     
 }
 catch {
-    Write-Host "❌ Error launching SimulIDE: $_" -ForegroundColor $ErrorColor
+    Write-Host "[ERROR] Error launching SimulIDE: $_" -ForegroundColor $ErrorColor
     Write-Host ""
     Write-Host "Troubleshooting steps:" -ForegroundColor $InfoColor
     Write-Host "  1. Verify SimulIDE path: $SimulIDEPath" -ForegroundColor White
-    Write-Host "  2. Check if SimulIDE.exe is blocked (Right-click → Properties → Unblock)" -ForegroundColor White
+    Write-Host "  2. Check if SimulIDE.exe is blocked (Right-click > Properties > Unblock)" -ForegroundColor White
     Write-Host "  3. Try running SimulIDE manually:" -ForegroundColor White
     Write-Host "     Start-Process '$SimulIDEPath'" -ForegroundColor Gray
     Write-Host "  4. Check Windows Defender or antivirus settings" -ForegroundColor White

@@ -46,7 +46,7 @@ class DataParser:
                     except:
                         result[key] = value
         except Exception as e:
-            print(f"❌ Parse error: {e}")
+            print(f"[ERROR] Parse error: {e}")
         
         return result
     
@@ -205,13 +205,13 @@ class DataParser:
         if data_type == 'sensor':
             parts = []
             if 'temperature' in data:
-                parts.append(f"🌡️ Temp: {data['temperature']:.1f}°C")
+                parts.append(f"[TEMP] Temp: {data['temperature']:.1f}°C")
             if 'humidity' in data:
-                parts.append(f"💧 Humidity: {data['humidity']:.1f}%")
+                parts.append(f"[HUMID] Humidity: {data['humidity']:.1f}%")
             if 'light' in data:
-                parts.append(f"💡 Light: {data['light']:.0f}")
+                parts.append(f"[LIGHT] Light: {data['light']:.0f}")
             if 'distance' in data:
-                parts.append(f"📏 Distance: {data['distance']:.1f}cm")
+                parts.append(f"[DIST] Distance: {data['distance']:.1f}cm")
             return " | ".join(parts)
         
         elif data_type == 'motor':

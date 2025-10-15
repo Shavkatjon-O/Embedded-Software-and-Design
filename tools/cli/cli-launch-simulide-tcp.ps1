@@ -31,7 +31,7 @@ if ([string]::IsNullOrWhiteSpace($CircuitFile)) {
     $CircuitFile = Join-Path $RepoRoot "tools\simulide\Simulator.simu"
 }
 
-Write-Host "`n🚀 Launching SimulIDE with TCP-configured circuit..." -ForegroundColor Cyan
+Write-Host "`n[START] Launching SimulIDE with TCP-configured circuit..." -ForegroundColor Cyan
 Write-Host "   Circuit: $CircuitFile" -ForegroundColor Gray
 
 # Auto-detect SimulIDE if path not provided
@@ -44,7 +44,7 @@ if ([string]::IsNullOrWhiteSpace($SimulIDEPath)) {
     }
     
     if (-not (Test-Path $SimulIDEPath)) {
-        Write-Host "❌ Error: SimulIDE executable not found" -ForegroundColor Red
+        Write-Host "[ERROR] Error: SimulIDE executable not found" -ForegroundColor Red
         Write-Host "   Searched: tools\simulide\SimulIDE_*\bin\simulide.exe" -ForegroundColor Gray
         exit 1
     }
@@ -52,19 +52,20 @@ if ([string]::IsNullOrWhiteSpace($SimulIDEPath)) {
 
 # Verify circuit file exists
 if (-not (Test-Path $CircuitFile)) {
-    Write-Host "❌ Error: Circuit file not found: $CircuitFile" -ForegroundColor Red
+    Write-Host "[ERROR] Error: Circuit file not found: $CircuitFile" -ForegroundColor Red
     exit 1
 }
 
 # Launch SimulIDE
 Write-Host "   SimulIDE: $SimulIDEPath" -ForegroundColor Gray
-Write-Host "`n💡 SimulIDE will connect to localhost:9002 (bridged to localhost:9001)" -ForegroundColor Yellow
+Write-Host "`n[INFO] SimulIDE will connect to localhost:9002 (bridged to localhost:9001)" -ForegroundColor Yellow
 Write-Host "`n" -ForegroundColor Gray
 
 try {
     & $SimulIDEPath $CircuitFile
-    Write-Host "`n✅ SimulIDE closed" -ForegroundColor Green
-} catch {
-    Write-Host "`n❌ Error launching SimulIDE: $_" -ForegroundColor Red
+    Write-Host "`n[OK] SimulIDE closed" -ForegroundColor Green
+}
+catch {
+    Write-Host "`n[ERROR] Error launching SimulIDE: $_" -ForegroundColor Red
     exit 1
 }

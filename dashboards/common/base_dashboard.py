@@ -52,7 +52,7 @@ class BaseDashboard:
         self.device_type = None  # 'simulator' or 'hardware'
         self.com_port = None
         
-        print(f"✅ {self.name} initialized on port {self.port}")
+        print(f"[OK] {self.name} initialized on port {self.port}")
     
     def load_config(self, config_file):
         """Load configuration from JSON file"""
@@ -61,20 +61,20 @@ class BaseDashboard:
             if config_path.exists():
                 with open(config_path, 'r') as f:
                     self.config = json.load(f)
-                print(f"📋 Loaded config from {config_file}")
+                print(f"[CONFIG] Loaded config from {config_file}")
             else:
-                print(f"⚠️ Config file not found: {config_file}")
+                print(f"[WARNING] Config file not found: {config_file}")
         except Exception as e:
-            print(f"❌ Error loading config: {e}")
+            print(f"[ERROR] Error loading config: {e}")
     
     def save_config(self, config_file):
         """Save configuration to JSON file"""
         try:
             with open(config_file, 'w') as f:
                 json.dump(self.config, f, indent=2)
-            print(f"💾 Saved config to {config_file}")
+            print(f"[SAVE] Saved config to {config_file}")
         except Exception as e:
-            print(f"❌ Error saving config: {e}")
+            print(f"[ERROR] Error saving config: {e}")
     
     def get_config(self, key, default=None):
         """Get configuration value"""
@@ -87,10 +87,10 @@ class BaseDashboard:
     def run(self, host='0.0.0.0', debug=True):
         """Run the dashboard server"""
         print("=" * 60)
-        print(f"🚀 Starting {self.name}")
+        print(f"[START] Starting {self.name}")
         print("=" * 60)
-        print(f"🌐 URL: http://localhost:{self.port}")
-        print(f"📱 Network: http://<your-ip>:{self.port}")
+        print(f"[URL] URL: http://localhost:{self.port}")
+        print(f"[NETWORK] Network: http://<your-ip>:{self.port}")
         print("=" * 60)
         
         self.socketio.run(self.app, debug=debug, host=host, port=self.port)

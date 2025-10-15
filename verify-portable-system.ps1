@@ -229,10 +229,10 @@ if (Test-Path (Join-Path $testProject "Main.c")) {
         $result = & powershell.exe -ExecutionPolicy Bypass -File $buildScript -ProjectDir $testProject 2>&1
         
         if ($LASTEXITCODE -eq 0 -and (Test-Path (Join-Path $testProject "Main.hex"))) {
-            Write-Host "✅ Build test successful" -ForegroundColor $SuccessColor
+            Write-Host "[OK] Build test successful" -ForegroundColor $SuccessColor
         }
         else {
-            Write-Host "❌ Build test failed" -ForegroundColor $ErrorColor
+            Write-Host "[ERROR] Build test failed" -ForegroundColor $ErrorColor
             $script:ErrorCount++
             if ($Detailed) {
                 Write-Host "   Build output: $result" -ForegroundColor Gray
@@ -240,12 +240,12 @@ if (Test-Path (Join-Path $testProject "Main.c")) {
         }
     }
     catch {
-        Write-Host "❌ Build test error: $($_.Exception.Message)" -ForegroundColor $ErrorColor
+        Write-Host "[ERROR] Build test error: $($_.Exception.Message)" -ForegroundColor $ErrorColor
         $script:ErrorCount++
     }
 }
 else {
-    Write-Host "⚠️  Graphics_Display project not found - skipping build test" -ForegroundColor $WarningColor
+    Write-Host "[WARNING] Graphics_Display project not found - skipping build test" -ForegroundColor $WarningColor
     $script:WarningCount++
 }
 
@@ -264,18 +264,18 @@ if ($script:ErrorCount -eq 0 -and $script:WarningCount -eq 0) {
     
 }
 elseif ($script:ErrorCount -eq 0) {
-    Write-Host "✅ GOOD: System is functional with minor warnings" -ForegroundColor $SuccessColor
-    Write-Host "⚠️  Warnings: $script:WarningCount (non-critical)" -ForegroundColor $WarningColor
+    Write-Host "[OK] GOOD: System is functional with minor warnings" -ForegroundColor $SuccessColor
+    Write-Host "[WARNING] Warnings: $script:WarningCount (non-critical)" -ForegroundColor $WarningColor
     Write-Host ""
-    Write-Host "✅ Students can use the system successfully" -ForegroundColor $SuccessColor
+    Write-Host "[OK] Students can use the system successfully" -ForegroundColor $SuccessColor
     
 }
 else {
-    Write-Host "❌ ISSUES FOUND: System needs attention" -ForegroundColor $ErrorColor
-    Write-Host "❌ Critical errors: $script:ErrorCount" -ForegroundColor $ErrorColor
-    Write-Host "⚠️  Warnings: $script:WarningCount" -ForegroundColor $WarningColor
+    Write-Host "[ERROR] ISSUES FOUND: System needs attention" -ForegroundColor $ErrorColor
+    Write-Host "[ERROR] Critical errors: $script:ErrorCount" -ForegroundColor $ErrorColor
+    Write-Host "[WARNING] Warnings: $script:WarningCount" -ForegroundColor $WarningColor
     Write-Host ""
-    Write-Host "🔧 Please fix critical errors before distributing to students" -ForegroundColor $WarningColor
+    Write-Host "[FIX] Please fix critical errors before distributing to students" -ForegroundColor $WarningColor
 }
 
 Write-Host ""

@@ -179,7 +179,7 @@ class ProjectLauncherDashboard(BaseDashboard):
                         self.serial_handler.start_monitoring()
                         self.log(f"Serial monitoring started on {self.serial_handler.port}")
                     
-                    message = f"✅ Programmed and connected on {port}\n{prog_output}"
+                    message = f"[OK] Programmed and connected on {port}\n{prog_output}"
                 else:
                     message = prog_output
             
@@ -561,10 +561,10 @@ class ProjectLauncherDashboard(BaseDashboard):
             
             if success:
                 self.log(f"Programming successful: {project_name}")
-                return True, f"✅ Programmed to hardware on {port}\n{output}"
+                return True, f"[OK] Programmed to hardware on {port}\n{output}"
             else:
                 self.log(f"Programming failed: {output}", "ERROR")
-                return False, f"❌ Programming failed:\n{output}"
+                return False, f"[ERROR] Programming failed:\n{output}"
             
         except subprocess.TimeoutExpired:
             return False, "Programming timeout (30s exceeded)"
@@ -683,14 +683,14 @@ dashboard = ProjectLauncherDashboard()
 
 if __name__ == '__main__':
     print("=" * 70)
-    print("🎓 ATmega128 Project Launcher Dashboard")
+    print("[DASHBOARD] ATmega128 Project Launcher Dashboard")
     print("=" * 70)
-    print(f"📁 Workspace: {dashboard.workspace_root}")
-    print(f"🔧 Projects: {len(list(dashboard.projects_dir.iterdir()))} found")
-    print(f"🎮 SimulIDE: {dashboard.simulide_path}")
+    print(f"[WORKSPACE] Workspace: {dashboard.workspace_root}")
+    print(f"[CONFIG] Projects: {len(list(dashboard.projects_dir.iterdir()))} found")
+    print(f"[SIMULIDE] SimulIDE: {dashboard.simulide_path}")
     print("=" * 70)
-    print("🌐 Dashboard URL: http://localhost:5001")
-    print("📱 Network access: http://<your-ip>:5001")
+    print("[URL] Dashboard URL: http://localhost:5001")
+    print("[NETWORK] Network access: http://<your-ip>:5001")
     print("=" * 70)
     print("Press Ctrl+C to stop")
     print("=" * 70)

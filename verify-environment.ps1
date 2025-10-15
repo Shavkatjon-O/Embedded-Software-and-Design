@@ -65,7 +65,7 @@ function Test-Tool {
     }
 }
 
-Write-Host "🚀 SOC3050 Self-Sufficient Environment Verification" -ForegroundColor $InfoColor
+Write-Host "[START] SOC3050 Self-Sufficient Environment Verification" -ForegroundColor $InfoColor
 Write-Host "=" * 50 -ForegroundColor $InfoColor
 Write-Host ""
 
@@ -193,7 +193,7 @@ Write-Host "`n" + "=" * 50 -ForegroundColor $InfoColor
 if ($allPassed) {
     Write-Status "Environment verification PASSED" "Success" "Ready for development!"
     Write-Host ""
-    Write-Host "🎯 Next steps:" -ForegroundColor $InfoColor
+    Write-Host "[NEXT] Next steps:" -ForegroundColor $InfoColor
     Write-Host "   1. Open VS Code in this directory" -ForegroundColor Gray
     Write-Host "   2. Navigate to projects/ folder" -ForegroundColor Gray
     Write-Host "   3. Choose a project and start coding!" -ForegroundColor Gray
@@ -203,7 +203,7 @@ if ($allPassed) {
 else {
     Write-Status "Environment verification FAILED" "Error" "Some components are missing or not working"
     Write-Host ""
-    Write-Host "🔧 Troubleshooting:" -ForegroundColor $WarningColor
+    Write-Host "[FIX] Troubleshooting:" -ForegroundColor $WarningColor
     Write-Host "   1. Ensure you cloned the complete repository" -ForegroundColor Gray
     Write-Host "   2. Check that tools/ directory is present and complete" -ForegroundColor Gray
     Write-Host "   3. Try running: git lfs pull (if using Git LFS)" -ForegroundColor Gray

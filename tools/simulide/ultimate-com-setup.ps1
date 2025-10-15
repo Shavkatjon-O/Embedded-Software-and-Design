@@ -63,19 +63,20 @@ class EducationalComSolutions {
         $com0com = Get-Command "setupc.exe" -ErrorAction SilentlyContinue
         if ($com0com) {
             $this.Solutions["com0com"] = @{
-                Available = $true
-                Priority = 1
+                Available   = $true
+                Priority    = 1
                 Description = "com0com Virtual COM Ports"
                 Reliability = "Excellent"
-                Setup = "Automatic"
+                Setup       = "Automatic"
             }
-        } else {
+        }
+        else {
             $this.Solutions["com0com"] = @{
-                Available = $false
-                Priority = 1
+                Available   = $false
+                Priority    = 1
                 Description = "com0com Virtual COM Ports (Not Installed)"
                 Reliability = "Excellent"
-                Setup = "Manual Installation Required"
+                Setup       = "Manual Installation Required"
             }
         }
         
@@ -83,31 +84,31 @@ class EducationalComSolutions {
         $realPorts = $this.GetRealComPorts()
         if ($realPorts.Count -ge 2) {
             $this.Solutions["hardware"] = @{
-                Available = $true
-                Priority = 2
+                Available   = $true
+                Priority    = 2
                 Description = "Hardware COM Ports"
                 Reliability = "Excellent"
-                Setup = "Hardware Dependent"
-                Ports = $realPorts
+                Setup       = "Hardware Dependent"
+                Ports       = $realPorts
             }
         }
         
         # 3. PowerShell solution (always available)
         $this.Solutions["powershell"] = @{
-            Available = $true
-            Priority = 3
+            Available   = $true
+            Priority    = 3
             Description = "PowerShell Named Pipes"
             Reliability = "Basic"
-            Setup = "Automatic"
+            Setup       = "Automatic"
         }
         
         # 4. SimulIDE internal (always available)
         $this.Solutions["internal"] = @{
-            Available = $true
-            Priority = 4
+            Available   = $true
+            Priority    = 4
             Description = "SimulIDE Internal Serial Terminal"
             Reliability = "Good"
-            Setup = "No Setup Required"
+            Setup       = "No Setup Required"
         }
         
         # Determine recommended solution
@@ -124,7 +125,8 @@ class EducationalComSolutions {
                 $_.Description -notmatch "com0com|Virtual|Emulator|Loopback"
             }
             $realPorts = $allPorts | ForEach-Object { $_.DeviceID }
-        } catch {
+        }
+        catch {
             # Fallback to basic port enumeration
             $allPorts = [System.IO.Ports.SerialPort]::getportnames()
             # Filter out known virtual ports
@@ -141,10 +143,10 @@ class EducationalComSolutions {
         foreach ($solution in ($this.Solutions.GetEnumerator() | Sort-Object { $_.Value.Priority })) {
             $name = $solution.Key
             $info = $solution.Value
-            $status = if ($info.Available) { "✅ Available" } else { "❌ Not Available" }
+            $status = if ($info.Available) { "[OK] Available" } else { "[ERROR] Not Available" }
             $color = if ($info.Available) { "Green" } else { "Red" }
             
-            Write-Host "🔧 $($info.Description)" -ForegroundColor $color
+            Write-Host "[CONFIG] $($info.Description)" -ForegroundColor $color
             Write-Host "   Status: $status" -ForegroundColor White
             Write-Host "   Reliability: $($info.Reliability)" -ForegroundColor White
             Write-Host "   Setup: $($info.Setup)" -ForegroundColor White
@@ -165,7 +167,7 @@ class EducationalComSolutions {
             $method = $this.RecommendedSolution
         }
         
-        Write-Host "🚀 Setting up: $method" -ForegroundColor Cyan
+        Write-Host "[START] Setting up: $method" -ForegroundColor Cyan
         
         switch ($method) {
             "com0com" {
@@ -181,20 +183,20 @@ class EducationalComSolutions {
                 return $this.SetupHardwarePorts()
             }
             default {
-                Write-Host "❌ Unknown method: $method" -ForegroundColor Red
+                Write-Host "[ERROR] Unknown method: $method" -ForegroundColor Red
                 return $false
             }
         }
     }
     
     [bool]SetupCom0com() {
-        Write-Host "🔧 Setting up com0com virtual COM ports..." -ForegroundColor Green
+        Write-Host "[CONFIG] Setting up com0com virtual COM ports..." -ForegroundColor Green
         
         $setupc = Get-Command "setupc.exe" -ErrorAction SilentlyContinue
         if (-not $setupc) {
-            Write-Host "❌ com0com not installed" -ForegroundColor Red
-            Write-Host "📥 Download and install from: https://sourceforge.net/projects/com0com/" -ForegroundColor Yellow
-            Write-Host "🔧 After installation, run: setupc install 0 PortName=COM3 PortName=COM4" -ForegroundColor Yellow
+            Write-Host "[ERROR] com0com not installed" -ForegroundColor Red
+            Write-Host "[DOWNLOAD] Download and install from: https://sourceforge.net/projects/com0com/" -ForegroundColor Yellow
+            Write-Host "[CONFIG] After installation, run: setupc install 0 PortName=COM3 PortName=COM4" -ForegroundColor Yellow
             return $false
         }
         
@@ -204,36 +206,39 @@ class EducationalComSolutions {
         $isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
         
         if (-not $isAdmin) {
-            Write-Host "⚠️ Administrator privileges required for com0com setup" -ForegroundColor Yellow
-            Write-Host "🔧 Run as Administrator: setupc install 0 PortName=COM3 PortName=COM4" -ForegroundColor Yellow
+            Write-Host "[WARNING] Administrator privileges required for com0com setup" -ForegroundColor Yellow
+            Write-Host "[CONFIG] Run as Administrator: setupc install 0 PortName=COM3 PortName=COM4" -ForegroundColor Yellow
             return $false
         }
         
         try {
             $result = & $setupc.Source install 0 PortName=COM3 PortName=COM4 2>&1
             if ($LASTEXITCODE -eq 0) {
-                Write-Host "✅ com0com COM3↔COM4 pair created successfully!" -ForegroundColor Green
+                Write-Host "[OK] com0com COM3↔COM4 pair created successfully!" -ForegroundColor Green
                 return $true
-            } else {
-                Write-Host "❌ com0com setup failed: $result" -ForegroundColor Red
+            }
+            else {
+                Write-Host "[ERROR] com0com setup failed: $result" -ForegroundColor Red
                 return $false
             }
-        } catch {
-            Write-Host "❌ Error: $($_.Exception.Message)" -ForegroundColor Red
+        }
+        catch {
+            Write-Host "[ERROR] Error: $($_.Exception.Message)" -ForegroundColor Red
             return $false
         }
     }
     
     [bool]SetupPowerShellBridge() {
-        Write-Host "🔧 Setting up PowerShell serial bridge..." -ForegroundColor Green
+        Write-Host "[CONFIG] Setting up PowerShell serial bridge..." -ForegroundColor Green
         
         $bridgeScript = Join-Path $PSScriptRoot "powershell-serial-bridge.ps1"
         if (Test-Path $bridgeScript) {
-            Write-Host "✅ PowerShell bridge available" -ForegroundColor Green
-            Write-Host "🚀 Start bridge: .\powershell-serial-bridge.ps1 -Start" -ForegroundColor Cyan
+            Write-Host "[OK] PowerShell bridge available" -ForegroundColor Green
+            Write-Host "[START] Start bridge: .\powershell-serial-bridge.ps1 -Start" -ForegroundColor Cyan
             return $true
-        } else {
-            Write-Host "❌ PowerShell bridge script not found" -ForegroundColor Red
+        }
+        else {
+            Write-Host "[ERROR] PowerShell bridge script not found" -ForegroundColor Red
             return $false
         }
     }
@@ -256,7 +261,8 @@ class EducationalComSolutions {
             Write-Host "🔧 Configure SimulIDE to use: $($realPorts[1])" -ForegroundColor Cyan
             Write-Host "🔧 Configure your application to use: $($realPorts[0])" -ForegroundColor Cyan
             return $true
-        } else {
+        }
+        else {
             Write-Host "❌ Insufficient hardware COM ports (need 2, found $($realPorts.Count))" -ForegroundColor Red
             return $false
         }
@@ -281,7 +287,8 @@ elseif ($Setup) {
     $success = $solutions.SetupSolution($Method)
     if ($success) {
         Write-Host "✅ COM port setup completed successfully!" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "❌ Setup failed - see instructions above" -ForegroundColor Red
         Write-Host "💡 Try alternative methods or manual setup" -ForegroundColor Yellow
     }

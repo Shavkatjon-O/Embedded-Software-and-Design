@@ -13,9 +13,9 @@ import importlib.util
 def check_python_version():
     """Check if Python version is 3.8+"""
     if sys.version_info < (3, 8):
-        print("❌ Python 3.8+ required. Current:", sys.version)
+        print("[ERROR] Python 3.8+ required. Current:", sys.version)
         return False
-    print(f"✅ Python {sys.version.split()[0]}")
+    print(f"[OK] Python {sys.version.split()[0]}")
     return True
 
 def check_package(package_name, import_name=None):
@@ -60,23 +60,23 @@ def main():
     missing = []
     for package, import_name in packages.items():
         if check_package(package, import_name):
-            print(f"✅ {package}")
+            print(f"[OK] {package}")
         else:
-            print(f"❌ {package} - Missing")
+            print(f"[ERROR] {package} - Missing")
             missing.append(package)
     
     # Install missing packages
     if missing:
-        print(f"\n📦 Installing {len(missing)} missing package(s)...")
+        print(f"\n[INSTALL] Installing {len(missing)} missing package(s)...")
         for package in missing:
             if install_package(package):
-                print(f"✅ {package} installed")
+                print(f"[OK] {package} installed")
             else:
-                print(f"❌ Failed to install {package}")
+                print(f"[ERROR] Failed to install {package}")
                 sys.exit(1)
     
     print("\n" + "=" * 70)
-    print("🚀 Starting Dashboard...")
+    print("[START] Starting Dashboard...")
     print("=" * 70)
     print("🌐 Dashboard URL: http://localhost:5001")
     print("📱 Network access: http://<your-ip>:5001")
@@ -90,9 +90,9 @@ def main():
         from project_launcher_dashboard import dashboard
         dashboard.run(host='0.0.0.0', debug=True)
     except KeyboardInterrupt:
-        print("\n\n👋 Dashboard stopped")
+        print("\n\n[STOP] Dashboard stopped")
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        print(f"\n[ERROR] Error: {e}")
         sys.exit(1)
 
 if __name__ == '__main__':

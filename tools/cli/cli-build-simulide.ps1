@@ -1,7 +1,7 @@
 param([string]$ProjectDir)
 
 # SIMULIDE BUILD: Optimized for SimulIDE 1.1.0+ with full ELPM support
-Write-Host "🎯 Building for SimulIDE 1.1.0+ (ELPM Support Fixed)" -ForegroundColor Cyan
+Write-Host "[TARGET] Building for SimulIDE 1.1.0+ (ELPM Support Fixed)" -ForegroundColor Cyan
 
 # PORTABLE SYSTEM - Use only included tools, no external dependencies
 $WorkspaceRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
@@ -13,10 +13,10 @@ $portableAvrObjcopy = Join-Path $WorkspaceRoot "tools\avr-toolchain\bin\avr-objc
 if (Test-Path $portableAvrGcc) {
     $avrGccExe = $portableAvrGcc
     $avrObjcopyExe = $portableAvrObjcopy
-    Write-Host "✅ Using portable AVR toolchain" -ForegroundColor Green
+    Write-Host "[OK] Using portable AVR toolchain" -ForegroundColor Green
 }
 else {
-    Write-Host "❌ PORTABLE SYSTEM ERROR: AVR toolchain not found!" -ForegroundColor Red
+    Write-Host "[ERROR] PORTABLE SYSTEM ERROR: AVR toolchain not found!" -ForegroundColor Red
     Write-Host "Expected location: $portableAvrGcc" -ForegroundColor Yellow
     Write-Host "This system requires NO external installations - all tools should be included." -ForegroundColor Yellow
     Write-Host "Please ensure the tools/avr-toolchain directory is complete." -ForegroundColor Yellow
