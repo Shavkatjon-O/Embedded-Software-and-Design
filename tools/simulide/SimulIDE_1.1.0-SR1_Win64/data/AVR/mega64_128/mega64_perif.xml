@@ -67,16 +67,17 @@
   </timer>
 
   <!-- ========================================
-       UART FIX: Added missing USART peripherals
+       UART FIX: Added missing USART peripherals with correct register mapping
+       Fixed: configregsA must be UCSR*A (status register with UDRE/TXC/RXC flags)
        ======================================== -->
-  <usart name="USART0" number="1" configregsA="UCSR0C" configregsB="UCSR0B"
+  <usart name="USART0" number="1" configregsA="UCSR0A" configregsB="UCSR0B" configregsC="UCSR0C"
                        interrupt="USART0_U">
 
     <trunit type="tx" pin="PORTE1" register="UDR0" interrupt="USART0_T" />
     <trunit type="rx" pin="PORTE0"                 interrupt="USART0_R" />
   </usart>
 
-  <usart name="USART1" number="2" configregsA="UCSR1C" configregsB="UCSR1B"
+  <usart name="USART1" number="2" configregsA="UCSR1A" configregsB="UCSR1B" configregsC="UCSR1C"
                        interrupt="USART1_U">
 
     <trunit type="tx" pin="PORTD3" register="UDR1" interrupt="USART1_T" />

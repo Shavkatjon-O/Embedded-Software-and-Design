@@ -143,6 +143,37 @@
             "group": "test"
         },
         {
+            "label": "Start TCP Serial Bridge",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\tools\\simulide\\tcp-serial-bridge.ps1"
+            ],
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^$",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^=== TCP to Serial Bridge ===",
+                    "endsPattern": "^=== Bridge Running ==="
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": false
+            },
+            "group": "test"
+        },
+        {
             "label": "Simulate in SimulIDE (Current Project)",
             "type": "shell",
             "command": "powershell.exe",
