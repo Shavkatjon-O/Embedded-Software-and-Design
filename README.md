@@ -158,14 +158,16 @@ Ctrl+Shift+P → "Tasks: Run Task" → Choose:
 **Easy Batch Files (No PowerShell Issues):**
 ```bash
 # Build and program projects
-build-project.bat                    # Build current project
-program-project.bat                  # Program microcontroller
-simulate-project.bat                 # Test in SimulIDE
-build-all.bat                       # Build all projects
+build.bat                            # Build current project (wrapper)
+tools\batch\build-project.bat        # Build specific project  
+tools\batch\program-project.bat      # Program microcontroller
+tools\batch\simulate-project.bat     # Test in SimulIDE
+tools\batch\build-all.bat            # Build all projects
 
 # Environment verification
-simple-check.bat                     # Quick environment check
-setup-check.bat                      # Full verification
+setup.bat                            # Quick setup check (wrapper)
+tools\batch\simple-check.bat         # Quick environment check
+tools\batch\setup-check.bat          # Full verification
 ```
 
 **Advanced PowerShell (for power users):**
@@ -243,7 +245,7 @@ If you get "cannot be loaded because running scripts is disabled":
 
 ```bash
 # Option 1: Use batch file (easiest)
-setup-check.bat
+setup.bat
 
 # Option 2: Run with bypass flag
 powershell -ExecutionPolicy Bypass -File verify-environment.ps1

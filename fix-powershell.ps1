@@ -12,8 +12,8 @@ Write-Host ""
 Write-Host "To run SOC3050 scripts, you have these options:" -ForegroundColor Green
 Write-Host ""
 
-Write-Host "Option 1 (Recommended): Use the batch file" -ForegroundColor Cyan
-Write-Host "   Double-click: setup-check.bat" -ForegroundColor Gray
+Write-Host "Option 1 (Recommended): Use the batch file wrapper" -ForegroundColor Cyan
+Write-Host "   Double-click: setup.bat" -ForegroundColor Gray
 Write-Host ""
 
 Write-Host "Option 2: Run with bypass flag" -ForegroundColor Cyan
@@ -42,7 +42,7 @@ if ($choice -eq 'y' -or $choice -eq 'Y') {
     }
 }
 else {
-    Write-Host "No changes made. Use Option 1 (setup-check.bat) for verification." -ForegroundColor Yellow
+    Write-Host "No changes made. Use Option 1 (setup.bat wrapper) for verification." -ForegroundColor Yellow
 }
 
 Write-Host ""

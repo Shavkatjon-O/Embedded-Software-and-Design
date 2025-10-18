@@ -15,13 +15,16 @@ cd soc3050code
 **Option A: Simple Check (No PowerShell issues)**
 ```bash
 # Double-click this file or run from command prompt
-simple-check.bat
+tools\batch\simple-check.bat
 ```
 
 **Option B: Full Verification with PowerShell**
 ```bash
 # Double-click this file (handles PowerShell policies automatically)
-setup-check.bat
+setup.bat
+
+# Or run the full check directly:
+tools\batch\setup-check.bat
 
 # Or run manually with bypass:
 powershell -ExecutionPolicy Bypass -File verify-environment.ps1
@@ -65,9 +68,10 @@ code .
 
 ### **Command Line (Easy)**
 ```bash
-build-project.bat      # Build current project
-program-project.bat    # Upload to MCU
-simulate-project.bat   # Test in SimulIDE
+build.bat              # Build current project (wrapper)
+tools\batch\build-project.bat      # Build specific project
+tools\batch\program-project.bat    # Upload to MCU
+tools\batch\simulate-project.bat   # Test in SimulIDE
 ```
 
 ### **Advanced CLI**

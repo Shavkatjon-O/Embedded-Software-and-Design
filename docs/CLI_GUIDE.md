@@ -8,62 +8,62 @@ All functionality is available through both PowerShell scripts and batch file wr
 
 | Task | Batch File (Easy) | PowerShell (Advanced) |
 |------|-------------------|------------------------|
-| **Verify Environment** | `simple-check.bat` | `powershell -ExecutionPolicy Bypass -File verify-environment.ps1` |
-| **Build Project** | `build-project.bat` | `powershell -ExecutionPolicy Bypass -File tools\cli\cli-build-project.ps1 -ProjectDir .` |
-| **Program MCU** | `program-project.bat` | `powershell -ExecutionPolicy Bypass -File tools\cli\cli-program-project.ps1 -ProjectDir .` |
-| **Simulate Circuit** | `simulate-project.bat` | `powershell -ExecutionPolicy Bypass -File tools\cli\cli-build-simulide.ps1 -ProjectDir .` |
-| **Build All** | `build-all.bat` | `powershell -ExecutionPolicy Bypass -File tools\cli\cli-build-all.ps1` |
-| **New Project** | `new-project.bat` | `powershell -ExecutionPolicy Bypass -File tools\cli\cli-new-project.ps1` |
+| **Verify Environment** | `tools\batch\simple-check.bat` | `powershell -ExecutionPolicy Bypass -File verify-environment.ps1` |
+| **Build Project** | `tools\batch\build-project.bat` | `powershell -ExecutionPolicy Bypass -File tools\cli\cli-build-project.ps1 -ProjectDir .` |
+| **Program MCU** | `tools\batch\program-project.bat` | `powershell -ExecutionPolicy Bypass -File tools\cli\cli-program-project.ps1 -ProjectDir .` |
+| **Simulate Circuit** | `tools\batch\simulate-project.bat` | `powershell -ExecutionPolicy Bypass -File tools\cli\cli-build-simulide.ps1 -ProjectDir .` |
+| **Build All** | `tools\batch\build-all.bat` | `powershell -ExecutionPolicy Bypass -File tools\cli\cli-build-all.ps1` |
+| **New Project** | `tools\batch\new-project.bat` | `powershell -ExecutionPolicy Bypass -File tools\cli\cli-new-project.ps1` |
 
 ## 🚀 Basic Usage
 
 ### 1. Verify Environment
 ```bash
 # Simple check (recommended)
-simple-check.bat
+tools\batch\simple-check.bat
 
 # Full verification
-setup-check.bat
+setup.bat
 ```
 
 ### 2. Build a Project
 ```bash
-# Build current directory project
-build-project.bat
+# Build current directory project (easy wrapper)
+build.bat
 
 # Build specific project
-build-project.bat "projects\Port_Basic"
+tools\batch\build-project.bat "projects\Port_Basic"
 ```
 
 ### 3. Program Microcontroller
 ```bash
 # Program with default settings (Arduino programmer, COM3)
-program-project.bat
+tools\batch\program-project.bat
 
 # Program with specific settings
-program-project.bat "projects\Port_Basic" arduino COM5
-program-project.bat "projects\Timer_Basic" usbasp
+tools\batch\program-project.bat "projects\Port_Basic" arduino COM5
+tools\batch\program-project.bat "projects\Timer_Basic" usbasp
 ```
 
 ### 4. Simulate in SimulIDE
 ```bash
 # Simulate current project
-simulate-project.bat
+tools\batch\simulate-project.bat
 
 # Simulate specific project
-simulate-project.bat "projects\Graphics_Display"
+tools\batch\simulate-project.bat "projects\Graphics_Display"
 ```
 
 ### 5. Build All Projects
 ```bash
 # Test build all 35+ projects
-build-all.bat
+tools\batch\build-all.bat
 ```
 
 ### 6. Create New Project
 ```bash
 # Interactive project creation
-new-project.bat
+tools\batch\new-project.bat
 ```
 
 ## 🎮 VS Code Integration (Recommended)
@@ -162,4 +162,4 @@ soc3050code/
 
 ---
 
-**🎯 Ready to code? Start with `simple-check.bat` and then `code .`**
+**🎯 Ready to code? Start with `setup.bat` wrapper and then `code .`**

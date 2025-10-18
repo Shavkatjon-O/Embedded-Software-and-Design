@@ -22,7 +22,7 @@
  * HARDWARE REQUIREMENTS:
  * - ATmega128 microcontroller @ 16MHz
  * - UART1 connection for serial communication
- * - Serial terminal (9600 baud, 8N1)
+ * - Serial terminal (38400 baud, 8N1)
  *
  * CRITICAL EDUCATIONAL POINTS FOR STUDENTS:
  *
@@ -119,10 +119,10 @@ void simple_init_serial(void)
    * Students learn to work directly with UART registers without wrapper functions.
    */
 
-// Initialize UART1 for 9600 baud, 8N1 format - EDUCATIONAL VERSION
+// Initialize UART1 for 38400 baud, 8N1 format - EDUCATIONAL VERSION
 void init_uart_polling(void)
 {
-    // Step 1: Configure UART Control Register A (standard baud rate)
+    // Step 1: Configure UART Control Register A (standard mode)
     UCSR1A = 0x00; // U2X=0 for standard baud rate calculation
 
     // Step 2: Configure character format (8 data bits, 1 stop bit, no parity)
@@ -133,7 +133,7 @@ void init_uart_polling(void)
 
     // Step 4: Calculate and set baud rate
     // Formula: UBRR = (F_CPU / (16 * BAUD)) - 1
-    // For 16MHz and 9600 baud: UBRR = (16000000 / (16 * 9600)) - 1 = 103
+    // For 16MHz and 38400 baud: UBRR = (16000000 / (16 * 38400)) - 1 = 25
     unsigned int baud_register = UART_BAUD_REGISTER;
     UBRR1H = (baud_register >> 8); // High byte of baud rate register
     UBRR1L = baud_register;        // Low byte of baud rate register
@@ -478,7 +478,7 @@ void init_uart_interrupts(void)
     // EDUCATIONAL UART INITIALIZATION - Direct Register Programming
     // Students learn the exact steps for UART setup:
 
-    // Step 1: Configure UART Control Register A (standard baud rate)
+    // Step 1: Configure UART Control Register A (standard mode)
     UCSR1A = 0x00; // U2X=0 for standard baud rate calculation
 
     // Step 2: Configure character format (8 data bits, 1 stop bit, no parity)
@@ -489,7 +489,7 @@ void init_uart_interrupts(void)
 
     // Step 4: Calculate and set baud rate
     // Formula: UBRR = (F_CPU / (16 * BAUD)) - 1
-    // For 16MHz and 9600 baud: UBRR = (16000000 / (16 * 9600)) - 1 = 103
+    // For 16MHz and 38400 baud: UBRR = (16000000 / (16 * 38400)) - 1 = 25
     unsigned int baud_register = UART_BAUD_REGISTER;
     UBRR1H = (baud_register >> 8); // High byte of baud rate register
     UBRR1L = baud_register;        // Low byte of baud rate register
@@ -970,7 +970,7 @@ int main(void)
     // ========================================
     // INTERRUPT DEMOS: CPU continues running
     // ========================================
-     demo_interrupt_echo(); // Demo 4: Real ISR echo (CPU free!) ← ACTIVE FOR TESTING
+    demo_interrupt_echo(); // Demo 4: Real ISR echo (CPU free!) ← ACTIVE FOR TESTING
     // demo_interrupt_tx_queue(); // Demo 5: TX interrupt with buffering
     // demo_interrupt_bidirectional(); // Demo 6: Full duplex communication
     // demo_interrupt_commands(); // Demo 7: Real-time command processing

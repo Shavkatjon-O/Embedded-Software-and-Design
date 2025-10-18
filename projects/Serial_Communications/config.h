@@ -12,11 +12,12 @@
 #endif
 
 // Default baud rate used in examples
+// Using 38400 baud for better SimulIDE compatibility
 #ifndef BAUD
-#define BAUD 9600
+#define BAUD 38400
 #endif
 
-// UART configuration macros
+// UART configuration macros (standard mode, U2X=0)
 #define UART_BAUD_REGISTER ((F_CPU / (16UL * BAUD)) - 1)
 #define UART_8BIT_CHAR ((1 << UCSZ11) | (1 << UCSZ10))
 #define UART_ENABLE_RX_TX ((1 << RXEN1) | (1 << TXEN1))
