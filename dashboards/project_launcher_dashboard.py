@@ -50,7 +50,7 @@ class ProjectLauncherDashboard(BaseDashboard):
         self.projects_dir = self.workspace_root / "projects"
         self.simulators_dir = self.workspace_root / "tools" / "simulide"
         self.simulide_path = self.simulators_dir / "SimulIDE_1.1.0-SR1_Win64" / "simulide.exe"
-        self.circuit_file = self.simulators_dir / "Simulator.simu"
+        self.circuit_file = self.simulators_dir / "Simulator110.simu"
         self.build_script = self.workspace_root / "tools" / "cli" / "cli-build-project.ps1"
         
         # Serial handler
@@ -617,7 +617,7 @@ class ProjectLauncherDashboard(BaseDashboard):
             return False, f"Error: {str(e)}"
     
     def update_circuit_hex(self, hex_file_path):
-        """Update Simulator.simu with new HEX file path"""
+        """Update Simulator110.simu with new HEX file path"""
         try:
             content = self.circuit_file.read_text(encoding='utf-8')
             

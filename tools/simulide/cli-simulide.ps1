@@ -13,7 +13,7 @@
     Can be absolute or relative path
     
 .PARAMETER CircuitFile
-    Path to .simu circuit file (default: auto-detect Simulator.simu)
+    Path to .simu circuit file (default: auto-detect Simulator110.simu)
     
 .PARAMETER BuildFirst
     Build the project before launching SimulIDE (default: true)
@@ -230,7 +230,7 @@ Write-Host "$HexFile" -ForegroundColor White
 # Determine circuit file with auto-detection
 if ([string]::IsNullOrEmpty($CircuitFile)) {
     Write-Host "[SEARCH] Searching for circuit file..." -ForegroundColor $InfoColor
-    Write-Host "   Priority: tools/simulide/Simulator.simu (official circuit)" -ForegroundColor $InfoColor
+    Write-Host "   Priority: tools/simulide/Simulator110.simu (official circuit)" -ForegroundColor $InfoColor
 
     # Prefer versioned circuit if running old SimulIDE
     $PreferOldCircuit = $false
@@ -241,24 +241,24 @@ if ([string]::IsNullOrEmpty($CircuitFile)) {
         # Prefer legacy circuit that is known to work with 0.4.15
         $PossibleCircuits += @(
             Join-Path $WorkspaceRoot "tools\simulide\Simulator0415.simu"
-            Join-Path $WorkspaceRoot "tools\simulide\Simulator.simu"
+            Join-Path $WorkspaceRoot "tools\simulide\Simulator110.simu"
             Join-Path $WorkspaceRoot "tools\simulide\SimulIDE_0.4.15-SR10_Win64\Simulator0415.simu"
         )
     }
     else {
         # Prefer official circuit for 1.1.0+
         $PossibleCircuits += @(
-            Join-Path $WorkspaceRoot "tools\simulide\Simulator.simu"
-            Join-Path $WorkspaceRoot "tools\simulide\SimulIDE_1.1.0-SR1_Win64\Simulator.simu"
+            Join-Path $WorkspaceRoot "tools\simulide\Simulator110.simu"
+            Join-Path $WorkspaceRoot "tools\simulide\SimulIDE_1.1.0-SR1_Win64\Simulator110.simu"
         )
     }
 
     # Common fallbacks
     $PossibleCircuits += @(
-        Join-Path $WorkspaceRoot "Simulator.simu"
+        Join-Path $WorkspaceRoot "Simulator110.simu"
         Join-Path $WorkspaceRoot "circuit.simu"
         Join-Path $ProjectDir "circuit.simu"
-        Join-Path $ProjectDir "Simulator.simu"
+        Join-Path $ProjectDir "Simulator110.simu"
         Join-Path $WorkspaceRoot "tools\simulide\Simulator_backup.simu"
         Join-Path $WorkspaceRoot "tools\simulide\Simulator_terminal.simu"
     )
@@ -271,7 +271,7 @@ if ([string]::IsNullOrEmpty($CircuitFile)) {
             if ($PreferOldCircuit -and $CircuitFile -like "*Simulator0415.simu") {
                 Write-Host "   [TARGET] Using 0.4.15-specific circuit (best compatibility)" -ForegroundColor $SuccessColor
             }
-            elseif ($CircuitFile -like "*tools\simulide\Simulator.simu") {
+            elseif ($CircuitFile -like "*tools\simulide\Simulator110.simu") {
                 Write-Host "   [TARGET] Using official circuit file (recommended)" -ForegroundColor $SuccessColor
             }
             break
@@ -285,14 +285,14 @@ if ([string]::IsNullOrEmpty($CircuitFile) -or -not (Test-Path $CircuitFile)) {
     Write-Host "Please ensure the official SimulIDE circuit file exists:" -ForegroundColor $WarningColor
     Write-Host ""
     Write-Host "Required:" -ForegroundColor $InfoColor
-    Write-Host "   [PATH] $WorkspaceRoot\tools\simulide\Simulator.simu (official circuit)" -ForegroundColor White
+    Write-Host "   [PATH] $WorkspaceRoot\tools\simulide\Simulator110.simu (official circuit)" -ForegroundColor White
     Write-Host ""
     Write-Host "Alternative options:" -ForegroundColor $InfoColor
-    Write-Host "   1. Check if tools/simulide/Simulator.simu exists in workspace" -ForegroundColor White
+    Write-Host "   1. Check if tools/simulide/Simulator110.simu exists in workspace" -ForegroundColor White
     Write-Host "   2. Specify custom circuit: -CircuitFile 'path\to\circuit.simu'" -ForegroundColor White
     Write-Host ""
     Write-Host "Example:" -ForegroundColor $InfoColor
-    Write-Host "   .\cli-simulide.ps1 -CircuitFile 'tools\simulide\Simulator.simu'" -ForegroundColor White
+    Write-Host "   .\cli-simulide.ps1 -CircuitFile 'tools\simulide\Simulator110.simu'" -ForegroundColor White
     Write-Host ""
     exit 1
 }
@@ -303,7 +303,7 @@ Write-Host "$CircuitFile" -ForegroundColor White
 # Update the main circuit file directly (no temporary file)
 Write-Host "`n[UPDATE] Updating main circuit file..." -ForegroundColor $InfoColor
 
-# Use the main Simulator.simu file directly
+# Use the main Simulator110.simu file directly
 $MainCircuitFile = $CircuitFile
 
 # Backup the original circuit file before modification

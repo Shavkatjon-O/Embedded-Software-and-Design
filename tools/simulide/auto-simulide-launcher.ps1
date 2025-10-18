@@ -59,13 +59,13 @@ $ProjectName = Split-Path $ProjectDir -Leaf
 $ProjectCompatibility = @{
     "Graphics_Display" = @{
         "PreferredVersion" = "0.4.15"
-        "Reason" = "GLCD library has compatibility issues with SimulIDE 1.1.0"
-        "Circuit" = "Simulator0415.simu"
+        "Reason"           = "GLCD library has compatibility issues with SimulIDE 1.1.0"
+        "Circuit"          = "Simulator0415.simu"
     }
-    "Default" = @{
+    "Default"          = @{
         "PreferredVersion" = "1.1.0"
-        "Reason" = "Latest features and improvements"
-        "Circuit" = "Simulator.simu"
+        "Reason"           = "Latest features and improvements"
+        "Circuit"          = "Simulator110.simu"
     }
 }
 
@@ -101,7 +101,7 @@ if ($SelectedVersion -eq "0.4.15") {
 }
 else {
     $SimulIDEPath = Join-Path $WorkspaceRoot "tools\simulide\SimulIDE_1.1.0-SR1_Win64\simulide.exe"
-    $CircuitFile = Join-Path $WorkspaceRoot "tools\simulide\Simulator.simu"
+    $CircuitFile = Join-Path $WorkspaceRoot "tools\simulide\Simulator110.simu"
 }
 
 # Verify SimulIDE exists

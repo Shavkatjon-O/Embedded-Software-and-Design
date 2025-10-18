@@ -57,21 +57,23 @@ function Test-Component {
             }
             $script:Passed++
             return $true
-        } else {
+        }
+        else {
             if ($Critical) {
                 Write-Host "❌ FAIL" -ForegroundColor $ErrorColor
                 $script:Failed++
                 $script:Issues += @{
-                    Name = $Name
+                    Name    = $Name
                     Message = $FailMessage
-                    Fix = $FixCommand
+                    Fix     = $FixCommand
                 }
-            } else {
+            }
+            else {
                 Write-Host "⚠️  WARNING" -ForegroundColor $WarningColor
                 $script:Warnings += @{
-                    Name = $Name
+                    Name    = $Name
                     Message = $FailMessage
-                    Fix = $FixCommand
+                    Fix     = $FixCommand
                 }
             }
             if ($FailMessage) {
@@ -82,7 +84,8 @@ function Test-Component {
             }
             return $false
         }
-    } catch {
+    }
+    catch {
         Write-Host "❌ ERROR" -ForegroundColor $ErrorColor
         Write-Host "   Exception: $_" -ForegroundColor $ErrorColor
         $script:Failed++
@@ -97,30 +100,30 @@ Write-Host ""
 Test-Component -Name "PowerShell Version" -Test {
     $PSVersionTable.PSVersion.Major -ge 5
 } -SuccessMessage "PowerShell $($PSVersionTable.PSVersion) detected" `
-  -FailMessage "PowerShell 5.0 or higher required" `
-  -FixCommand "Download PowerShell 7+ from https://aka.ms/powershell"
+    -FailMessage "PowerShell 5.0 or higher required" `
+    -FixCommand "Download PowerShell 7+ from https://aka.ms/powershell"
 
 # 2. Workspace structure
 Test-Component -Name "Workspace Structure" -Test {
     Test-Path (Join-Path $WorkspaceRoot "cli-simulide.ps1")
 } -SuccessMessage "Workspace root: $WorkspaceRoot" `
-  -FailMessage "cli-simulide.ps1 not found in workspace" `
-  -FixCommand "Ensure you're running from workspace root"
+    -FailMessage "cli-simulide.ps1 not found in workspace" `
+    -FixCommand "Ensure you're running from workspace root"
 
 # 3. Projects directory
 Test-Component -Name "Projects Directory" -Test {
     Test-Path (Join-Path $WorkspaceRoot "projects")
 } -SuccessMessage "Projects directory found" `
-  -FailMessage "projects/ directory not found" `
-  -FixCommand "Create projects/ directory or check workspace structure"
+    -FailMessage "projects/ directory not found" `
+    -FixCommand "Create projects/ directory or check workspace structure"
 
 # 4. Circuit file
-$CircuitFile = Join-Path $WorkspaceRoot "SimulIDE_1.1.0-SR1_Win64\Simulator.simu"
+$CircuitFile = Join-Path $WorkspaceRoot "SimulIDE_1.1.0-SR1_Win64\Simulator110.simu"
 Test-Component -Name "Circuit File" -Test {
     Test-Path $CircuitFile
 } -SuccessMessage "Circuit file: $CircuitFile" `
-  -FailMessage "Simulator.simu not found in SimulIDE folder" `
-  -FixCommand "Create Simulator.simu in SimulIDE_1.1.0-SR1_Win64 folder"
+    -FailMessage "Simulator110.simu not found in SimulIDE folder" `
+    -FixCommand "Create Simulator110.simu in SimulIDE_1.1.0-SR1_Win64 folder"
 
 Write-Host "`n=== SimulIDE Installation ===" -ForegroundColor $InfoColor
 Write-Host ""
@@ -144,17 +147,17 @@ foreach ($Path in $SimulIDEPaths) {
 Test-Component -Name "SimulIDE Executable" -Test {
     $null -ne $SimulIDEFound
 } -SuccessMessage "Found: $SimulIDEFound" `
-  -FailMessage "SimulIDE not found in any standard location" `
-  -FixCommand "Download from https://simulide.com/p/downloads/ and extract to workspace"
+    -FailMessage "SimulIDE not found in any standard location" `
+    -FixCommand "Download from https://simulide.com/p/downloads/ and extract to workspace"
 
 # 6. SimulIDE version
 if ($SimulIDEFound) {
     Test-Component -Name "SimulIDE Version" -Test {
         $SimulIDEFound -match "1\.1\.0"
     } -SuccessMessage "SimulIDE 1.1.0-SR1 detected" `
-      -FailMessage "Different SimulIDE version detected" `
-      -FixCommand "Download SimulIDE 1.1.0-SR1 for compatibility" `
-      -Critical $false
+        -FailMessage "Different SimulIDE version detected" `
+        -FixCommand "Download SimulIDE 1.1.0-SR1 for compatibility" `
+        -Critical $false
 }
 
 Write-Host "`n=== Build Tools ===" -ForegroundColor $InfoColor
@@ -168,15 +171,15 @@ $systemAvrGcc = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu
 Test-Component -Name "AVR-GCC Compiler" -Test {
     (Test-Path $portableAvrGcc) -or (Test-Path $systemAvrGcc)
 } -SuccessMessage $(if (Test-Path $portableAvrGcc) { "Found: $portableAvrGcc (portable)" } else { "Found: $systemAvrGcc (system)" }) `
-  -FailMessage "AVR-GCC not found (required for building)" `
-  -FixCommand "Portable toolchain should be bundled. Check tools/avr-toolchain/ directory."
+    -FailMessage "AVR-GCC not found (required for building)" `
+    -FixCommand "Portable toolchain should be bundled. Check tools/avr-toolchain/ directory."
 
 # 8. Build script
 Test-Component -Name "Build Script" -Test {
     Test-Path (Join-Path $WorkspaceRoot "cli-build-project.ps1")
 } -SuccessMessage "cli-build-project.ps1 found" `
-  -FailMessage "Build script missing" `
-  -FixCommand "Restore cli-build-project.ps1 from repository"
+    -FailMessage "Build script missing" `
+    -FixCommand "Restore cli-build-project.ps1 from repository"
 
 Write-Host "`n=== Project Files ===" -ForegroundColor $InfoColor
 Write-Host ""
@@ -186,17 +189,17 @@ $SampleProject = Join-Path $WorkspaceRoot "projects\Port_Basic"
 Test-Component -Name "Sample Project" -Test {
     Test-Path $SampleProject
 } -SuccessMessage "Port_Basic project found" `
-  -FailMessage "Sample project not found" `
-  -FixCommand "Ensure projects are properly extracted" `
-  -Critical $false
+    -FailMessage "Sample project not found" `
+    -FixCommand "Ensure projects are properly extracted" `
+    -Critical $false
 
 # 10. Sample project Main.c
 if (Test-Path $SampleProject) {
     Test-Component -Name "Sample Project Main.c" -Test {
         Test-Path (Join-Path $SampleProject "Main.c")
     } -SuccessMessage "Main.c exists in Port_Basic" `
-      -FailMessage "Main.c not found in sample project" `
-      -Critical $false
+        -FailMessage "Main.c not found in sample project" `
+        -Critical $false
 }
 
 Write-Host "`n=== Configuration ===" -ForegroundColor $InfoColor
@@ -207,9 +210,9 @@ $TasksFile = Join-Path $WorkspaceRoot ".vscode\tasks.json"
 Test-Component -Name "VS Code Tasks" -Test {
     Test-Path $TasksFile
 } -SuccessMessage "tasks.json found" `
-  -FailMessage "VS Code tasks.json not found" `
-  -FixCommand "Restore .vscode/tasks.json for build integration" `
-  -Critical $false
+    -FailMessage "VS Code tasks.json not found" `
+    -FixCommand "Restore .vscode/tasks.json for build integration" `
+    -Critical $false
 
 # 12. Temp directory writable
 Test-Component -Name "Temp Directory Access" -Test {
@@ -218,12 +221,13 @@ Test-Component -Name "Temp Directory Access" -Test {
         "test" | Out-File $TestFile -ErrorAction Stop
         Remove-Item $TestFile -ErrorAction Stop
         return $true
-    } catch {
+    }
+    catch {
         return $false
     }
 } -SuccessMessage "Can write to: $env:TEMP" `
-  -FailMessage "Cannot write to temp directory" `
-  -FixCommand "Check temp folder permissions: $env:TEMP"
+    -FailMessage "Cannot write to temp directory" `
+    -FixCommand "Check temp folder permissions: $env:TEMP"
 
 Write-Host "`n=== Optional Components ===" -ForegroundColor $InfoColor
 Write-Host ""
@@ -234,9 +238,9 @@ Test-Component -Name "SimulIDE Documentation" -Test {
     $oldPath = Test-Path (Join-Path $WorkspaceRoot "SIMULIDE_GUIDE.md")
     $newPath -or $oldPath
 } -SuccessMessage "Complete documentation available" `
-  -FailMessage "Documentation files missing" `
-  -FixCommand "Restore documentation files" `
-  -Critical $false
+    -FailMessage "Documentation files missing" `
+    -FixCommand "Restore documentation files" `
+    -Critical $false
 
 # 14. Lab files
 $LabProjects = @("Port_Basic", "ADC_Basic", "Graphics_Display")
@@ -251,8 +255,8 @@ foreach ($Lab in $LabProjects) {
 Test-Component -Name "Lab Exercise Files" -Test {
     $LabsFound -ge 3
 } -SuccessMessage "$LabsFound lab projects found" `
-  -FailMessage "Lab.c files missing" `
-  -Critical $false
+    -FailMessage "Lab.c files missing" `
+    -Critical $false
 
 # Summary
 Write-Host ""
@@ -276,10 +280,12 @@ if ($Failed -eq 0 -and $Warnings.Count -eq 0) {
     Write-Host "  2. Press Ctrl+Shift+B" -ForegroundColor White
     Write-Host "  3. Select 'Build and Simulate Current Project'" -ForegroundColor White
     Write-Host ""
-} elseif ($Failed -eq 0) {
+}
+elseif ($Failed -eq 0) {
     Write-Host "⚠️  Environment is functional with minor warnings." -ForegroundColor $WarningColor
     Write-Host ""
-} else {
+}
+else {
     Write-Host "❌ Environment setup incomplete. Please address the issues above." -ForegroundColor $ErrorColor
     Write-Host ""
     

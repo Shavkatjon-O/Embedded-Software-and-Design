@@ -45,7 +45,7 @@ This guide explains how to use **SimulIDE 1.1.0 SR1** as a virtual ATmega128 exp
 
 1. Build your project to generate `Main.hex`
 2. Open `SimulIDE_1.1.0-SR1_Win64\bin\simulide.exe`
-3. Load circuit: `File → Open → SimulIDE_1.1.0-SR1_Win64\Simulator.simu`
+3. Load circuit: `File → Open → SimulIDE_1.1.0-SR1_Win64\Simulator110.simu`
 4. Right-click MCU → `Load Firmware` → Select your `Main.hex`
 5. Click **Play** button (▶) to start simulation
 
@@ -83,10 +83,10 @@ soc3050code/
 │   └── bin/simulide.exe           ← Main executable
 ├── SimulIDE_1.1.0-SR1_Win64/
 │   ├── simulide.exe              ← SimulIDE executable
-│   ├── Simulator.simu            ← ATmega128 circuit file
+│   ├── Simulator110.simu         ← ATmega128 circuit file
 │   ├── data/                     ← Component libraries
 │   └── examples/                 ← Example circuits
-├── Simulator.simu                 ← Alternative circuit file
+├── Simulator110.simu              ← Alternative circuit file
 └── cli-simulide.ps1               ← Launch script
 ```
 
@@ -377,11 +377,11 @@ Start-Process "SimulIDE_1.1.0-SR1_Win64\bin\simulide.exe"
 **Solutions**:
 ```powershell
 # Use absolute path
-$circuit = Resolve-Path "Simulator.simu"
+$circuit = Resolve-Path "Simulator110.simu"
 Start-Process "SimulIDE_1.1.0-SR1_Win64\bin\simulide.exe" -ArgumentList "`"$circuit`""
 
 # Or copy to SimulIDE folder
-Copy-Item "Simulator.simu" "SimulIDE_1.1.0-SR1_Win64\"
+Copy-Item "Simulator110.simu" "SimulIDE_1.1.0-SR1_Win64\"
 ```
 
 ---
@@ -426,7 +426,7 @@ ERROR: AVR Invalid instruction: ELPM with no RAMPZ
 **Symptoms:** SimulIDE opens but circuit shows old program or nothing
 
 **Solutions:**
-1. Check `Simulator.simu` has absolute path: `Program="W:/soc3050code/projects/Port_Basic/Main.hex"`
+1. Check `Simulator110.simu` has absolute path: `Program="W:/soc3050code/projects/Port_Basic/Main.hex"`
 2. Verify `Auto_Load="true"` in circuit file
 3. Or manually load: Right-click MCU → Load Firmware → Select Main.hex
 4. Rebuild project to ensure fresh HEX file
@@ -556,7 +556,7 @@ ERROR: AVR Invalid instruction: ELPM with no RAMPZ
 
 ### For Instructors
 
-1. **Provide master circuit**: Students should use `Simulator.simu`
+1. **Provide master circuit**: Students should use `Simulator110.simu`
 2. **Standardize settings**: Same simulation speed for all
 3. **Demo first**: Show SimulIDE usage before assigning
 4. **Grade both**: Test on SimulIDE AND physical hardware (if available)
@@ -636,7 +636,7 @@ When reporting problems, include:
 ### Contributing
 
 Found a bug in the circuit? Improve it!
-1. Edit `Simulator.simu` in SimulIDE
+1. Edit `Simulator110.simu` in SimulIDE
 2. Save changes
 3. Test with multiple projects
 4. Submit pull request

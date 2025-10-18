@@ -963,14 +963,14 @@ int main(void)
     // =====================================
     // POLLING DEMOS: CPU waits for data
     // =====================================
-    demo_polling_echo(); // Demo 1: Simple polling (CPU blocks) ← ACTIVE FOR TESTING
+    // demo_polling_echo(); // Demo 1: Simple polling (CPU blocks) ← ACTIVE FOR TESTING
     // demo_polling_commands();       // Demo 2: Command polling (inefficient)
     // demo_polling_buffered();       // Demo 3: Manual buffering (still blocks)
 
     // ========================================
     // INTERRUPT DEMOS: CPU continues running
     // ========================================
-    // demo_interrupt_echo(); // Demo 4: Real ISR echo (CPU free!) ← ACTIVE FOR TESTING
+     demo_interrupt_echo(); // Demo 4: Real ISR echo (CPU free!) ← ACTIVE FOR TESTING
     // demo_interrupt_tx_queue(); // Demo 5: TX interrupt with buffering
     // demo_interrupt_bidirectional(); // Demo 6: Full duplex communication
     // demo_interrupt_commands(); // Demo 7: Real-time command processing

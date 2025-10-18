@@ -212,7 +212,7 @@ Automatically extracts from Main.c:
 **Solution**: Check `simulators/SimulIDE_1.1.0-SR1_Win64/simulide.exe` exists
 
 **Problem**: Circuit file error  
-**Solution**: Verify `Simulator.simu` file is valid
+**Solution**: Verify `Simulator110.simu` file is valid
 
 ### Device Not Detected
 

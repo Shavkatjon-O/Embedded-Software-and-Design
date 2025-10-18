@@ -59,7 +59,8 @@ function Stop-TcpBridges {
         try {
             Write-Host "   Stopping process: $($process.ProcessName)" -ForegroundColor Gray
             Stop-Process $process -Force
-        } catch {
+        }
+        catch {
             # Ignore errors
         }
     }
@@ -98,7 +99,8 @@ function Configure-SimulIDECircuit {
         & $configScript 2>&1 | Out-Null
         Write-Host "✅ SimulIDE circuit configured for TCP communication" -ForegroundColor Green
         return $true
-    } else {
+    }
+    else {
         Write-Host "⚠️ Circuit configuration script not found" -ForegroundColor Yellow
         return $false
     }
@@ -115,7 +117,8 @@ function Launch-SimulIDE {
         # Launch SimulIDE with the specified project
         & $simulideScript -ProjectDir $ProjectPath -BuildFirst $true
         return $true
-    } else {
+    }
+    else {
         Write-Host "❌ SimulIDE launcher not found" -ForegroundColor Red
         return $false
     }
@@ -134,24 +137,28 @@ function Show-SystemStatus {
         foreach ($job in $bridgeJobs) {
             Write-Host "   ✅ Bridge running (Job ID: $($job.Id), State: $($job.State))" -ForegroundColor Green
         }
-    } else {
+    }
+    else {
         Write-Host "   ❌ No TCP bridges running" -ForegroundColor Red
     }
     Write-Host ""
     
     # Check SimulIDE circuit configuration
-    $circuitFile = Join-Path $PSScriptRoot "Simulator.simu"
+    $circuitFile = Join-Path $PSScriptRoot "Simulator110.simu"
     Write-Host "🔧 Circuit Configuration:" -ForegroundColor Cyan
     if (Test-Path $circuitFile) {
         $content = Get-Content $circuitFile -Raw
         if ($content -match 'Port="localhost:(\d+)"') {
             Write-Host "   ✅ Configured for TCP: localhost:$($matches[1])" -ForegroundColor Green
-        } elseif ($content -match 'Port="(COM\d+)"') {
+        }
+        elseif ($content -match 'Port="(COM\d+)"') {
             Write-Host "   ⚠️ Configured for COM port: $($matches[1])" -ForegroundColor Yellow
-        } else {
+        }
+        else {
             Write-Host "   ❓ Unknown configuration" -ForegroundColor Yellow
         }
-    } else {
+    }
+    else {
         Write-Host "   ❌ Circuit file not found" -ForegroundColor Red
     }
     Write-Host ""
@@ -162,9 +169,10 @@ function Show-SystemStatus {
         $tcp9001 = Test-NetConnection -ComputerName localhost -Port 9001 -WarningAction SilentlyContinue
         $tcp9002 = Test-NetConnection -ComputerName localhost -Port 9002 -WarningAction SilentlyContinue
         
-        Write-Host "   Port 9001 (App): $(if($tcp9001.TcpTestSucceeded){"✅ Open"}else{"❌ Closed"})" -ForegroundColor $(if($tcp9001.TcpTestSucceeded){"Green"}else{"Red"})
-        Write-Host "   Port 9002 (SimulIDE): $(if($tcp9002.TcpTestSucceeded){"✅ Open"}else{"❌ Closed"})" -ForegroundColor $(if($tcp9002.TcpTestSucceeded){"Green"}else{"Red"})
-    } catch {
+        Write-Host "   Port 9001 (App): $(if($tcp9001.TcpTestSucceeded){"✅ Open"}else{"❌ Closed"})" -ForegroundColor $(if ($tcp9001.TcpTestSucceeded) { "Green" }else { "Red" })
+        Write-Host "   Port 9002 (SimulIDE): $(if($tcp9002.TcpTestSucceeded){"✅ Open"}else{"❌ Closed"})" -ForegroundColor $(if ($tcp9002.TcpTestSucceeded) { "Green" }else { "Red" })
+    }
+    catch {
         Write-Host "   ⚠️ Could not test network ports" -ForegroundColor Yellow
     }
     Write-Host ""
@@ -175,7 +183,8 @@ function Show-SystemStatus {
         Write-Host "   🟢 READY - Self-sufficient system is active!" -ForegroundColor Green
         Write-Host "   💡 Your apps connect to: localhost:9001" -ForegroundColor White
         Write-Host "   💡 SimulIDE communicates via: localhost:9002" -ForegroundColor White
-    } else {
+    }
+    else {
         Write-Host "   🟡 STOPPED - Run with no parameters to start" -ForegroundColor Yellow
     }
 }
@@ -233,7 +242,8 @@ if ($success) {
     Write-Host ""
     Write-Host "🛑 To stop: .\one-click-simulide.ps1 -StopBridge" -ForegroundColor Yellow
     Write-Host "📊 Status: .\one-click-simulide.ps1 -ShowStatus" -ForegroundColor Yellow
-} else {
+}
+else {
     Write-Host "❌ Setup completed with issues" -ForegroundColor Red
     Write-Host "💡 Check individual components and try again" -ForegroundColor Yellow
 }

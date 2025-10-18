@@ -53,7 +53,7 @@ class MultiUserDashboard(BaseDashboard):
         self.student_workspaces_dir = self.workspace_root / "student_workspaces"
         self.simulators_dir = self.workspace_root / "tools" / "simulide"
         self.simulide_path = self.simulators_dir / "SimulIDE_1.1.0-SR1_Win64" / "simulide.exe"
-        self.circuit_file = self.simulators_dir / "Simulator.simu"
+        self.circuit_file = self.simulators_dir / "Simulator110.simu"
         self.build_script = self.workspace_root / "tools" / "cli" / "cli-build-project.ps1"
         
         # Multi-user management
@@ -624,7 +624,7 @@ class MultiUserDashboard(BaseDashboard):
             
             # If no project-specific circuit, use default from tools/simulide
             if not circuit_files:
-                default_circuit = self.simulators_dir / "Simulator.simu"
+                default_circuit = self.simulators_dir / "Simulator110.simu"
                 if default_circuit.exists():
                     circuit_file = default_circuit
                 else:

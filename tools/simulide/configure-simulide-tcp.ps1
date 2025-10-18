@@ -39,10 +39,10 @@ param(
 # Function to find SimulIDE circuit file
 function Find-SimulIDECircuit {
     $possiblePaths = @(
-        ".\Simulator.simu",
-        "..\Simulator.simu", 
-        "tools\simulide\Simulator.simu",
-        "w:\soc3050code\tools\simulide\Simulator.simu"
+        ".\Simulator110.simu",
+        "..\Simulator110.simu", 
+        "tools\simulide\Simulator110.simu",
+        "w:\soc3050code\tools\simulide\Simulator110.simu"
     )
     
     foreach ($path in $possiblePaths) {
@@ -100,7 +100,8 @@ function Set-TcpSocketCommunication {
         
         return $true
         
-    } catch {
+    }
+    catch {
         Write-Host "❌ Error configuring circuit: $($_.Exception.Message)" -ForegroundColor Red
         return $false
     }
@@ -117,7 +118,8 @@ function Restore-ComPortSettings {
         Copy-Item $backupPath $FilePath -Force
         Write-Host "✅ Original settings restored from backup" -ForegroundColor Green
         return $true
-    } else {
+    }
+    else {
         Write-Host "❌ No backup file found: $backupPath" -ForegroundColor Red
         Write-Host "💡 Manually edit circuit to restore COM4 settings" -ForegroundColor Yellow
         return $false
@@ -142,12 +144,15 @@ function Show-CircuitConfiguration {
             
             if ($portConfig -like "localhost:*") {
                 Write-Host "✅ Configured for TCP socket communication" -ForegroundColor Green
-            } elseif ($portConfig -like "COM*") {
+            }
+            elseif ($portConfig -like "COM*") {
                 Write-Host "⚠️ Configured for COM port communication" -ForegroundColor Yellow
-            } else {
+            }
+            else {
                 Write-Host "❓ Unknown port configuration" -ForegroundColor Yellow
             }
-        } else {
+        }
+        else {
             Write-Host "❌ No SerialPort component found" -ForegroundColor Red
         }
         
@@ -155,10 +160,12 @@ function Show-CircuitConfiguration {
         $backupPath = $FilePath + ".backup"
         if (Test-Path $backupPath) {
             Write-Host "✅ Backup available: $backupPath" -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Host "⚠️ No backup found" -ForegroundColor Yellow
         }
-    } else {
+    }
+    else {
         Write-Host "❌ Circuit file not found" -ForegroundColor Red
     }
 }
@@ -183,7 +190,8 @@ if ($Restore) {
     if ($success) {
         Write-Host "🚀 Restart SimulIDE to use COM port communication" -ForegroundColor Cyan
     }
-} else {
+}
+else {
     Show-CircuitConfiguration -FilePath $CircuitFile
     Write-Host ""
     

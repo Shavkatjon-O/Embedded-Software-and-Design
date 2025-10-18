@@ -322,7 +322,7 @@ printf("DDRB:  0x%02X\n", DDRB);
 
 Before each lab session:
 - [ ] SimulIDE launches successfully
-- [ ] Circuit file loads (`Simulator.simu`)
+- [ ] Circuit file loads (`Simulator110.simu`)
 - [ ] Can build project (`Ctrl+Shift+B`)
 - [ ] Serial terminal opens
 - [ ] Understand pin connections
@@ -409,7 +409,7 @@ Ctrl+Shift+F    → Search in files
 .\cli-simulide.ps1 -ProjectDir "projects\ADC_Basic" -BuildFirst $false
 
 # Just open SimulIDE circuit editor
-Start-Process "SimulIDE_1.1.0-SR1_Win64\simulide.exe" -ArgumentList "Simulator.simu"
+Start-Process "SimulIDE_1.1.0-SR1_Win64\simulide.exe" -ArgumentList "Simulator110.simu"
 ```
 
 ---

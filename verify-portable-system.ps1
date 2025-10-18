@@ -149,7 +149,7 @@ Test-Component "SimulIDE 1.1.0 (New)" $newSimulIDE -Critical
 Test-Component "SimulIDE 0.4.15 (Legacy)" $oldSimulIDE -Critical
 
 # Check circuit files
-Test-Component "Main Circuit File" (Join-Path $simulideDir "Simulator.simu")
+Test-Component "Main Circuit File" (Join-Path $simulideDir "Simulator110.simu")
 Test-Component "Legacy Circuit File" (Join-Path $simulideDir "Simulator0415.simu")
 
 Write-Host ""

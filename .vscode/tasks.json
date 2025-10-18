@@ -160,6 +160,32 @@
             }
         },
         {
+            "label": "Simulate in SimulIDE 0.4.15 (Legacy)",
+            "type": "shell",
+            "command": "powershell.exe",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\tools\\simulide\\cli-simulide-0415.ps1",
+                "-ProjectDir",
+                "${fileDirname}"
+            ],
+            "group": "test",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Build and Simulate 0415 (Legacy Test)",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Build Current Project",
+                "Simulate in SimulIDE 0.4.15 (Legacy)"
+            ],
+            "group": "test"
+        },
+        {
             "label": "Show Memory Usage",
             "type": "shell",
             "command": "${workspaceFolder}\\tools\\avr-toolchain\\bin\\avr-size.exe",

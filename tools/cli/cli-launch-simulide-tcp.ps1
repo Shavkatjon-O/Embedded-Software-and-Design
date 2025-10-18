@@ -4,11 +4,11 @@
     Launch SimulIDE with TCP-configured circuit
     
 .DESCRIPTION
-    Launches SimulIDE with the shared circuit file (tools/simulide/Simulator.simu)
+    Launches SimulIDE with the shared circuit file (tools/simulide/Simulator110.simu)
     that has been configured for TCP socket communication on localhost:9002.
     
 .PARAMETER CircuitFile
-    Path to .simu circuit file (default: tools/simulide/Simulator.simu)
+    Path to .simu circuit file (default: tools/simulide/Simulator110.simu)
     
 .PARAMETER SimulIDEPath
     Path to SimulIDE executable (auto-detected if not specified)
@@ -28,7 +28,7 @@ $RepoRoot = (Get-Item $PSScriptRoot).Parent.Parent.FullName
 
 # Default circuit file
 if ([string]::IsNullOrWhiteSpace($CircuitFile)) {
-    $CircuitFile = Join-Path $RepoRoot "tools\simulide\Simulator.simu"
+    $CircuitFile = Join-Path $RepoRoot "tools\simulide\Simulator110.simu"
 }
 
 Write-Host "`n[START] Launching SimulIDE with TCP-configured circuit..." -ForegroundColor Cyan
