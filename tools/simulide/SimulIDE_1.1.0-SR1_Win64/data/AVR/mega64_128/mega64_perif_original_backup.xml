@@ -66,24 +66,6 @@
     <ocunit name="OC3C" pin="PORTE5" ocreg="OCR3CL,OCR3CH" bits="COM3C0,COM3C1" interrupt="T3COC" />
   </timer>
 
-  <!-- ========================================
-       UART FIX: Added missing USART peripherals
-       ======================================== -->
-  <usart name="USART0" number="1" configregsA="UCSR0C" configregsB="UCSR0B"
-                       interrupt="USART0_U">
-
-    <trunit type="tx" pin="PORTE1" register="UDR0" interrupt="USART0_T" />
-    <trunit type="rx" pin="PORTE0"                 interrupt="USART0_R" />
-  </usart>
-
-  <usart name="USART1" number="2" configregsA="UCSR1C" configregsB="UCSR1B"
-                       interrupt="USART1_U">
-
-    <trunit type="tx" pin="PORTD3" register="UDR1" interrupt="USART1_T" />
-    <trunit type="rx" pin="PORTD2"                 interrupt="USART1_R" />
-  </usart>
-  <!-- ======================================== -->
-
   <port name="PORTV" pins="2"/> <!-- Fake Port for aVcc, aRef -->
   <adc name="ADC" type="03" bits="10" configregsA="ADCSRA" configregsB="ADCSRB"
                   dataregs="ADCL,ADCH"

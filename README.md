@@ -4,6 +4,8 @@
 
 **35 Progressive Projects • Complete Toolchain Included • No Setup Required**
 
+> **✅ NEW: SimulIDE 1.1.0 Fully Patched!** ELPM and UART bugs fixed for ATmega128. See [`docs/simulide/SIMULIDE_PATCHES_QUICK_REF.md`](docs/simulide/SIMULIDE_PATCHES_QUICK_REF.md)
+
 ## 🚀 Quick Start (No Installation Required!)
 
 This repository is completely self-sufficient! Everything you need is included.

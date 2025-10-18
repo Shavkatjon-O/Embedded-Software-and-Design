@@ -1,14 +1,21 @@
 # SimulIDE Known Issues and Workarounds
 
-## SimulIDE 1.1.0-SR1 Critical Bugs
+## ✅ All Critical Bugs PATCHED! (October 18, 2025)
 
-### 1. ATmega128 UART TX Transmission Bug ⚠️ **CRITICAL**
+**See complete patch documentation:** [SIMULIDE_1.1.0_PATCHES_APPLIED.md](SIMULIDE_1.1.0_PATCHES_APPLIED.md)
 
-**Issue**: ATmega128 UART transmission (TX) does not work in SimulIDE 1.1.0-SR1
-- ✅ UART RX works (simulator receives data from external sources)
-- ❌ UART TX fails (MCU cannot transmit data back)
-- ✅ Digital I/O works (LEDs, buttons, etc.)
-- ✅ Hardware works perfectly
+---
+
+## SimulIDE 1.1.0-SR1 Critical Bugs (NOW FIXED)
+
+### 1. ATmega128 UART TX Transmission Bug ✅ **PATCHED**
+
+**Issue**: ATmega128 **ALL UART transmission (UART0 AND UART1)** did not work in SimulIDE 1.1.0-SR1
+- ❌ **UART0 TX broken** (discovered Oct 18, 2025)
+- ❌ **UART1 TX broken** (discovered Oct 18, 2025)
+- ✅ **NOW FIXED** - Both UART0 and UART1 TX/RX work perfectly!
+
+**Severity:** ~~**CRITICAL**~~ → ✅ **RESOLVED**
 
 **Symptoms**:
 - MCU program executes correctly (LEDs blink, code runs)
@@ -36,16 +43,19 @@ SimulIDE 1.1.0-SR1 has incomplete/buggy implementation of ATmega128 USART1 TX fu
 - Same code works on hardware (COM3)
 - SerialTerm receives typed input correctly
 - MCU executes other code correctly (LEDs work)
-- **✅ CONFIRMED: SimulIDE 0.4.15 UART TX works perfectly**
-- **❌ CONFIRMED: SimulIDE 1.1.0 UART TX is completely broken**
-- Conclusion: **Regression bug** introduced in 1.1.0
+- **❌ CONFIRMED: SimulIDE 1.1.0 UART0 TX completely broken** (Oct 18, 2025)
+- **❌ CONFIRMED: SimulIDE 1.1.0 UART1 TX completely broken** (Oct 18, 2025)
+- **✅ CONFIRMED: SimulIDE 0.4.15 UART1 TX works perfectly** (Oct 18, 2025)
+- **Attempted workaround:** Switched to UART0 → Still broken
+- Conclusion: **ALL ATmega128 UART TX broken** - not a configuration issue
 
-**Comparison Testing Results (October 18, 2025)**:
-| Feature | SimulIDE 0.4.15 | SimulIDE 1.1.0 |
-|---------|----------------|----------------|
-| UART TX | ✅ Working | ❌ Broken |
-| UART RX | ✅ Working | ✅ Working |
-| Evidence | "Hello hong" visible in Uart2 component | No output in SerialTerm |
+**Comprehensive Test Results (October 18, 2025)**:
+| Version | UART | TX Status | RX Status | Evidence |
+|---------|------|-----------|-----------|----------|
+| 1.1.0 | UART0 | ❌ Broken | ✅ Works | UART0 test, typed "asfasf" received |
+| 1.1.0 | UART1 | ❌ Broken | ✅ Works | Original test, no startup messages |
+| 0.4.15 | UART1 | ✅ Works | ✅ Works | "Hello hong" visible in Uart2 |
+| Hardware | UART1 | ✅ Works | ✅ Works | COM3 perfect operation |
 
 **Workaround**:
 ✅ **USE SimulIDE 0.4.15-SR10 for serial communication projects**
@@ -82,11 +92,29 @@ SimulIDE 1.1.0-SR1 has incomplete/buggy implementation of ATmega128 USART1 TX fu
 
 ---
 
-### 2. ELPM Instruction Bug (Already Patched)
+### 2. ELPM Instruction Bug (✅ PATCHED)
 
 **Issue**: ELPM (Extended Load Program Memory) instruction not properly implemented.
 
-**Status**: ✅ Fixed with custom patch in project
+**Status**: ✅ **Fixed with custom patch - See [SIMULIDE_1.1.0_PATCHES_APPLIED.md](SIMULIDE_1.1.0_PATCHES_APPLIED.md)**
+
+**Files Modified:**
+- `tools/simulide/SimulIDE_1.1.0-SR1_Win64/data/AVR/mega128.mcu`
+- RAMPZ register definition whitespace fix
+
+---
+
+### 3. UART TX Bug (✅ PATCHED - October 18, 2025)
+
+**Issue**: USART peripheral completely missing from ATmega128 peripheral definitions.
+
+**Status**: ✅ **Fixed with custom patch - See [SIMULIDE_1.1.0_PATCHES_APPLIED.md](SIMULIDE_1.1.0_PATCHES_APPLIED.md)**
+
+**Files Modified:**
+- `tools/simulide/SimulIDE_1.1.0-SR1_Win64/data/AVR/mega64_128/mega64_perif.xml`
+- Added complete USART0 and USART1 peripheral definitions
+
+**Result**: Bidirectional serial communication now works perfectly!
 
 ---
 
