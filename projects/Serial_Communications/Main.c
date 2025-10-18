@@ -441,22 +441,22 @@ ISR(USART1_RX_vect)
 }
 
 /*
- * USART0 Data Register Empty Interrupt
+ * USART1 Data Register Empty Interrupt
  * This ISR is called when the transmit buffer is ready for next character
  * Students learn: TX interrupts, automatic transmission, buffer management
  */
-ISR(USART0_UDRE_vect)
+ISR(USART1_UDRE_vect)
 {
     if (tx_head != tx_tail)
     {
         // Send next character from buffer
-        UDR0 = tx_buffer[tx_tail];
+        UDR1 = tx_buffer[tx_tail];
         tx_tail = (tx_tail + 1) % TX_BUFFER_SIZE;
     }
     else
     {
         // Buffer empty - disable this interrupt
-        UCSR0B &= ~(1 << UDRIE0);
+        UCSR1B &= ~(1 << UDRIE1);
         tx_busy = 0;
     }
 }
@@ -476,21 +476,24 @@ void init_uart_interrupts(void)
     // EDUCATIONAL UART INITIALIZATION - Direct Register Programming
     // Students learn the exact steps for UART setup:
 
-    // Step 1: Configure UART Control Register A (U2X=0 for testing)
-    UCSR1A = UART_U2X_DISABLE; // U2X=0 for normal mode
+    // Step 1: Configure UART Control Register A (U2X=1 for better accuracy)
+    UCSR1A = UART_U2X_ENABLE; // U2X=1 for double-speed mode
 
-    // Step 2: Configure character format (8 data bits, 1 stop bit, no parity)
+    // Step 2: Configure character format (8 data bits, No parity, 1 stop bit = 8N1)
     UCSR1C = UART_8BIT_CHAR; // UCSZ11:10 = 11 for 8-bit character size
 
     // Step 3: Enable transmitter and receiver
     UCSR1B = UART_ENABLE_RX_TX; // RXEN1 and TXEN1
 
     // Step 4: Calculate and set baud rate
-    // Formula with U2X=0: UBRR = (F_CPU / (16 * BAUD)) - 1
-    // For 16MHz and 1200 baud: UBRR = (16000000 / (16 * 1200)) - 1 = 832
+    // Formula with U2X=1: UBRR = (F_CPU / (8 * BAUD)) - 1
+    // For 16MHz and 9600 baud: UBRR = (16000000 / (8 * 9600)) - 1 = 207
     unsigned int baud_register = UART_BAUD_REGISTER;
     UBRR1H = (baud_register >> 8); // High byte of baud rate register
     UBRR1L = baud_register;        // Low byte of baud rate register
+
+    // Step 5: Allow UART hardware to stabilize (CRITICAL for first character)
+    _delay_ms(10); // Small delay for UART register stabilization
 
     // NOW THE EDUCATIONAL PART: Direct interrupt setup
     // Students learn these exact register operations:
@@ -530,7 +533,7 @@ unsigned char send_char_interrupt(char data)
     if (!tx_busy)
     {
         tx_busy = 1;
-        UCSR0B |= (1 << UDRIE0);
+        UCSR1B |= (1 << UDRIE1);
     }
 
     return 1; // Success
@@ -594,15 +597,18 @@ char get_char_from_buffer(void)
  */
 void demo_interrupt_echo(void)
 {
-    puts_USART1("\r\n=== DEMO 4: Interrupt Echo ===\r\n");
-    puts_USART1("INTERRUPT METHOD: CPU continues other work while ISR handles data\r\n");
-    puts_USART1("Students observe: ISR(USART0_RX_vect) automatically receives data\r\n");
-    puts_USART1("Type characters - they will be echoed back using REAL interrupts\r\n");
-    puts_USART1("Notice: CPU can do other tasks while ISR handles serial communication\r\n");
-    puts_USART1("Press 'q' to quit this demo\r\n\r\n");
-
     // EDUCATIONAL: Initialize interrupt-based UART (see ISRs above!)
     init_uart_interrupts();
+
+    // Send initial messages using polling (before interrupts fully active)
+    puts_USART1("\r\n=== DEMO 4: Interrupt Echo ===\r\n");
+    puts_USART1("INTERRUPT METHOD: CPU continues other work while ISR handles data\r\n");
+    puts_USART1("Students observe: ISR(USART1_RX_vect) and ISR(USART1_UDRE_vect) handle all I/O\r\n");
+    puts_USART1("Type characters - they will be echoed back using REAL interrupts\r\n");
+    puts_USART1("Notice: CPU can do other tasks while ISRs handle serial communication\r\n");
+    puts_USART1("Press 'q' to quit this demo\r\n\r\n");
+
+    _delay_ms(100); // Let initial messages complete
 
     // EDUCATIONAL: Show students the difference - CPU is free to do other work!
     unsigned int counter = 0;
@@ -624,8 +630,9 @@ void demo_interrupt_echo(void)
         {
             received = get_char_from_buffer();
 
-            // Echo the character back (could also use interrupt for TX)
-            putch_USART1(received);
+            // Echo the character back using interrupt-driven TX
+            while (!send_char_interrupt(received))
+                ; // Wait if TX buffer full
 
             if (received == 'q' || received == 'Q')
             {
@@ -645,7 +652,7 @@ void demo_interrupt_echo(void)
     }
 
     puts_USART1("\r\nInterrupt Demo 4 completed.\r\n");
-    puts_USART1("Key Learning: CPU was free to count and toggle LEDs while ISR handled all serial data!\r\n");
+    puts_USART1("Key Learning: CPU was free to count and toggle LEDs while ISRs handled all serial data!\r\n");
     puts_USART1("Compare this efficiency with polling demos above.\r\n");
 }
 
@@ -961,14 +968,14 @@ int main(void)
     // =====================================
     // POLLING DEMOS: CPU waits for data
     // =====================================
-    demo_polling_echo(); // Demo 1: Simple polling (CPU blocks) ← ACTIVE FOR TESTING
+    // demo_polling_echo(); // Demo 1: Simple polling (CPU blocks)
     // demo_polling_commands();       // Demo 2: Command polling (inefficient)
     // demo_polling_buffered();       // Demo 3: Manual buffering (still blocks)
 
     // ========================================
     // INTERRUPT DEMOS: CPU continues running
     // ========================================
-    // demo_interrupt_echo(); // Demo 4: Real ISR echo (CPU free!) ← ACTIVE FOR TESTING
+    demo_interrupt_echo(); // Demo 4: Real ISR echo (CPU free!) ← ACTIVE FOR TESTING
     // demo_interrupt_tx_queue(); // Demo 5: TX interrupt with buffering
     // demo_interrupt_bidirectional(); // Demo 6: Full duplex communication
     // demo_interrupt_commands(); // Demo 7: Real-time command processing
