@@ -1,6 +1,6 @@
 /*
  * =============================================================================
- * SERIAL COMMUNICATION METHODS - EDUCATIONAL COMPARISON
+ * SERIAL COMMUNICATION - COMPREHENSIVE EDUCATIONAL MATRIX
  * =============================================================================
  *
  * PROJECT: Serial_Communications
@@ -9,95 +9,469 @@
  * AUTHOR: Professor Hong Jeong
  *
  * PURPOSE:
- * Educational comparison between POLLING vs INTERRUPT-based serial communication.
- * Students learn both approaches with practical demonstrations and performance analysis.
+ * Systematic comparison of POLLING vs INTERRUPT methods across three data
+ * granularities: CHARACTER, WORD, and SENTENCE. All demos use ECHO pattern
+ * (RX + TX) for consistent learning and direct method comparison.
  *
  * EDUCATIONAL OBJECTIVES:
- * 1. Compare polling vs interrupt-driven communication
- * 2. Understand when to use each method
- * 3. Learn interrupt service routine programming
- * 4. Implement buffered vs direct communication
- * 5. Analyze performance and responsiveness differences
+ * 1. Master both polling and interrupt-driven UART communication
+ * 2. Understand data granularity: character → word → sentence progression
+ * 3. Learn real ISR programming (no wrappers, direct register access)
+ * 4. Compare CPU efficiency: polling blocks vs interrupts free CPU
+ * 5. Implement circular buffers and protocol parsing
  *
  * HARDWARE REQUIREMENTS:
  * - ATmega128 microcontroller @ 16MHz
  * - UART1 connection for serial communication
  * - Serial terminal (9600 baud, 8N1)
  *
+ * =============================================================================
+ * PEDAGOGICAL STRUCTURE: 2×3 MATRIX (6 DEMOS)
+ * =============================================================================
+ *
+ * ┌─────────────────┬──────────────────────┬──────────────────────┐
+ * │   Data Type     │   POLLING METHOD     │  INTERRUPT METHOD    │
+ * │                 │   (Simple/Blocking)  │  (Efficient/Complex) │
+ * ├─────────────────┼──────────────────────┼──────────────────────┤
+ * │ 1. CHARACTER    │ Demo 1: Polling      │ Demo 4: Interrupt    │
+ * │    (single)     │ Character Echo       │ Character Echo       │
+ * │    Basic I/O    │ • getch/putch        │ • ISR RX/TX          │
+ * │                 │ • CPU blocks         │ • CPU continues      │
+ * ├─────────────────┼──────────────────────┼──────────────────────┤
+ * │ 2. WORD         │ Demo 2: Polling      │ Demo 5: Interrupt    │
+ * │    (space delim)│ Word Echo            │ Word Echo            │
+ * │    Buffering    │ • Manual buffer      │ • Circular buffer    │
+ * │                 │ • Simple parsing     │ • ISR buffering      │
+ * ├─────────────────┼──────────────────────┼──────────────────────┤
+ * │ 3. SENTENCE     │ Demo 3: Polling      │ Demo 6: Interrupt    │
+ * │    (line delim) │ Sentence Echo        │ Sentence Echo        │
+ * │    Protocol     │ • Line buffering     │ • Full duplex ISR    │
+ * │                 │ • Command parsing    │ • Command protocol   │
+ * └─────────────────┴──────────────────────┴──────────────────────┘
+ *
  * CRITICAL EDUCATIONAL POINTS FOR STUDENTS:
  *
- * 1. REAL ISR PROGRAMMING:
+ * 1. ECHO PATTERN (RX + TX TOGETHER):
+ *    - All demos receive AND transmit (realistic communication)
+ *    - Students see complete data flow: input → process → output
+ *    - Enables direct polling vs interrupt comparison
+ *
+ * 2. REAL ISR PROGRAMMING:
  *    - No wrapper functions or callback managers
  *    - Direct ISR(USART1_RX_vect) and ISR(USART1_UDRE_vect)
  *    - Students see actual interrupt vector names
  *    - Learn proper ISR syntax and timing constraints
  *
- * 2. DIRECT REGISTER PROGRAMMING:
+ * 3. DIRECT REGISTER PROGRAMMING:
  *    - UCSR1B |= (1 << RXCIE1) to enable RX interrupts
  *    - UCSR1B |= (1 << UDRIE1) to enable TX interrupts
  *    - UDR1 register for data read/write
  *    - sei() and cli() for global interrupt control
  *
- * 3. VOLATILE VARIABLES:
+ * 4. VOLATILE VARIABLES:
  *    - All ISR-accessed variables marked volatile
  *    - Students learn why volatile is essential
  *    - Understand shared data between ISR and main()
  *
- * 4. CIRCULAR BUFFER IMPLEMENTATION:
+ * 5. CIRCULAR BUFFER IMPLEMENTATION:
  *    - Head/tail pointers for FIFO operation
  *    - Buffer overflow detection and handling
  *    - Atomic operations for data integrity
  *
- * 5. PERFORMANCE COMPARISON:
- *    - Polling blocks CPU (inefficient)
- *    - Interrupts free CPU for other tasks (efficient)
+ * 6. PERFORMANCE COMPARISON:
+ *    - Polling blocks CPU (inefficient but simple)
+ *    - Interrupts free CPU (efficient but complex)
  *    - Real-time responsiveness differences
  *
  * LEARNING PROGRESSION:
- * POLLING METHODS (Simple, blocking, CPU intensive):
- * - Demo 1: Basic Polling Echo
- * - Demo 2: Polling Command Processing
- * - Demo 3: Polling with Simple Buffering
+ * Start with Demo 1 (simplest: polling single character)
+ * Progress to Demo 6 (most complex: interrupt sentence protocol)
+ * Compare horizontally: same data type, different method
+ * Compare vertically: same method, increasing complexity
  *
- * INTERRUPT METHODS (Efficient, non-blocking, complex):
- * - Demo 4: Basic RX Interrupt
- * - Demo 5: TX Interrupt Queue
- * - Demo 6: Full Duplex Interrupts
- * - Demo 7: Advanced Interrupt Buffering
+ * =============================================================================
+ * UART CONTROL REGISTERS - DETAILED REFERENCE FOR STUDENTS
+ * =============================================================================
+ *
+ * REGISTER 1: UCSR1A (USART Control and Status Register A)
+ * ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+ * │ Bit │  7  │  6  │  5  │  4  │  3  │  2  │  1  │  0  │
+ * ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+ * │Name │RXC1 │TXC1 │UDRE1│ FE1 │DOR1 │UPE1 │U2X1 │MPCM1│
+ * └─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+ *
+ * RXC1  (bit 7): Receive Complete Flag (read-only)
+ *                Set when data received in UDR1, cleared by reading UDR1
+ *                Use: while (!(UCSR1A & (1<<RXC1))); // Wait for data
+ *
+ * TXC1  (bit 6): Transmit Complete Flag
+ *                Set when entire frame sent, cleared by writing 1 to it
+ *                Use: Check if transmission fully completed
+ *
+ * UDRE1 (bit 5): Data Register Empty Flag (read-only)
+ *                Set when UDR1 ready for new data, cleared by writing UDR1
+ *                Use: while (!(UCSR1A & (1<<UDRE1))); // Wait until ready
+ *
+ * FE1   (bit 4): Frame Error (read-only)
+ *                Set if stop bit not detected correctly
+ *
+ * DOR1  (bit 3): Data OverRun (read-only)
+ *                Set if new data received before old data was read
+ *
+ * UPE1  (bit 2): Parity Error (read-only)
+ *                Set if parity check failed (when parity enabled)
+ *
+ * U2X1  (bit 1): Double Transmission Speed
+ *                1 = double speed mode (reduces baud error)
+ *                Use: UCSR1A = (1<<U2X1); // Enable U2X for better accuracy
+ *
+ * MPCM1 (bit 0): Multi-processor Communication Mode
+ *                Usually 0 for normal operation
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * REGISTER 2: UCSR1B (USART Control and Status Register B)
+ * ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+ * │ Bit │  7  │  6  │  5  │  4  │  3  │  2  │  1  │  0  │
+ * ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+ * │Name │RXCIE│TXCIE│UDRIE│RXEN1│TXEN1│UCSZ │ RXB8│ TXB8│
+ * │     │  1  │  1  │  1  │     │     │  12 │   1 │   1 │
+ * └─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+ *
+ * RXCIE1 (bit 7): RX Complete Interrupt Enable **[INTERRUPT MODE]**
+ *                 1 = Enable interrupt when RXC1 flag set (data received)
+ *                 Use: UCSR1B |= (1<<RXCIE1); // Enable RX interrupt
+ *                 ISR: ISR(USART1_RX_vect) { data = UDR1; }
+ *
+ * TXCIE1 (bit 6): TX Complete Interrupt Enable
+ *                 1 = Enable interrupt when TXC1 flag set (transmission done)
+ *                 Rarely used (UDRIE1 is more common for continuous TX)
+ *
+ * UDRIE1 (bit 5): Data Register Empty Interrupt Enable **[INTERRUPT MODE]**
+ *                 1 = Enable interrupt when UDRE1 flag set (ready for data)
+ *                 Use: UCSR1B |= (1<<UDRIE1); // Enable TX interrupt
+ *                 ISR: ISR(USART1_UDRE_vect) { UDR1 = tx_data; }
+ *                 CRITICAL: Disable when buffer empty to prevent infinite ISR!
+ *
+ * RXEN1  (bit 4): Receiver Enable **[REQUIRED]**
+ *                 1 = Enable UART receiver
+ *                 Use: UCSR1B |= (1<<RXEN1); // Must set to receive data
+ *
+ * TXEN1  (bit 3): Transmitter Enable **[REQUIRED]**
+ *                 1 = Enable UART transmitter
+ *                 Use: UCSR1B |= (1<<TXEN1); // Must set to transmit data
+ *
+ * UCSZ12 (bit 2): Character Size bit 2 (combine with UCSR1C bits)
+ *                 For 8-bit data: UCSZ12=0, UCSZ11=1, UCSZ10=1
+ *
+ * RXB81  (bit 1): 9th receive data bit (for 9-bit mode)
+ * TXB81  (bit 0): 9th transmit data bit (for 9-bit mode)
+ *
+ * COMMON USAGE PATTERNS:
+ * Polling Mode:  UCSR1B = (1<<RXEN1) | (1<<TXEN1);
+ * Interrupt Mode: UCSR1B = (1<<RXCIE1) | (1<<RXEN1) | (1<<TXEN1);
+ *                 Later add: UCSR1B |= (1<<UDRIE1); // When data to send
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * REGISTER 3: UCSR1C (USART Control and Status Register C)
+ * ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+ * │ Bit │  7  │  6  │  5  │  4  │  3  │  2  │  1  │  0  │
+ * ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+ * │Name │UMSEL│ UPM1│ UPM1│USBS1│UCSZ1│UCSZ1│UCPOL│     │
+ * │     │  1  │  1  │  0  │     │  1  │  0  │  1  │     │
+ * └─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+ *
+ * UMSEL1 (bit 7): USART Mode Select
+ *                 0 = Asynchronous mode (standard UART)
+ *                 1 = Synchronous mode (requires clock)
+ *
+ * UPM11:0 (bits 5-4): Parity Mode
+ *                     00 = No parity (most common: 8N1)
+ *                     10 = Even parity
+ *                     11 = Odd parity
+ *
+ * USBS1 (bit 3): Stop Bit Select
+ *                0 = 1 stop bit (standard)
+ *                1 = 2 stop bits
+ *
+ * UCSZ11:10 (bits 2-1): Character Size (with UCSZ12 in UCSR1B)
+ *                       011 = 8-bit data (UCSZ12=0, UCSZ11=1, UCSZ10=1)
+ *                       Use: UCSR1C = (1<<UCSZ11) | (1<<UCSZ10); // 8-bit
+ *
+ * UCPOL1 (bit 0): Clock Polarity (synchronous mode only)
+ *
+ * COMMON USAGE (8N1 format):
+ * UCSR1C = (1<<UCSZ11) | (1<<UCSZ10); // 8-bit, no parity, 1 stop bit
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * REGISTER 4: UBRR1H and UBRR1L (Baud Rate Registers)
+ * ┌─────────────┬─────────────────────────────────────┐
+ * │  Register   │          Purpose                    │
+ * ├─────────────┼─────────────────────────────────────┤
+ * │ UBRR1H      │ High 4 bits of baud rate divisor    │
+ * │ UBRR1L      │ Low 8 bits of baud rate divisor     │
+ * └─────────────┴─────────────────────────────────────┘
+ *
+ * BAUD RATE CALCULATION (U2X1=1, double speed mode):
+ * UBRR = (F_CPU / (8 * BAUD)) - 1
+ *
+ * Example for 9600 baud @ 16MHz:
+ * UBRR = (16000000 / (8 * 9600)) - 1 = 207.33 ≈ 207
+ * Error = ((16000000/(8*(207+1)))/9600 - 1) × 100% = 0.16% (acceptable)
+ *
+ * Common Values (F_CPU=16MHz, U2X=1):
+ * ┌───────────┬────────┬────────────┐
+ * │ Baud Rate │  UBRR  │   Error    │
+ * ├───────────┼────────┼────────────┤
+ * │   2400    │  832   │   0.0%     │
+ * │   4800    │  416   │   0.0%     │
+ * │   9600    │  207   │   0.16%    │
+ * │  19200    │  103   │   0.16%    │
+ * │  38400    │   51   │   0.16%    │
+ * │  57600    │   34   │  -0.79%    │
+ * │ 115200    │   16   │   2.12%    │
+ * └───────────┴────────┴────────────┘
+ *
+ * Usage:
+ * uint16_t ubrr = 207; // For 9600 baud
+ * UBRR1H = (ubrr >> 8);  // High byte
+ * UBRR1L = ubrr;         // Low byte
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * REGISTER 5: UDR1 (USART Data Register)
+ * ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+ * │ Bit │  7  │  6  │  5  │  4  │  3  │  2  │  1  │  0  │
+ * ├─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┤
+ * │Data │ D7  │ D6  │ D5  │ D4  │ D3  │ D2  │ D1  │ D0  │
+ * └─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
+ *
+ * This is the actual data register - read to receive, write to transmit
+ *
+ * RX Usage (Polling):
+ *   while (!(UCSR1A & (1<<RXC1))); // Wait for data
+ *   char data = UDR1;               // Read received byte
+ *
+ * TX Usage (Polling):
+ *   while (!(UCSR1A & (1<<UDRE1))); // Wait until ready
+ *   UDR1 = data;                    // Send byte
+ *
+ * RX Usage (Interrupt):
+ *   ISR(USART1_RX_vect) {
+ *       char data = UDR1; // Reading UDR1 clears RXC1 flag
+ *       // Process data...
+ *   }
+ *
+ * TX Usage (Interrupt):
+ *   ISR(USART1_UDRE_vect) {
+ *       UDR1 = next_byte; // Writing UDR1 clears UDRE1 flag
+ *   }
+ *
+ * =============================================================================
+ * INTERRUPT SYSTEM - DETAILED REFERENCE FOR STUDENTS
+ * =============================================================================
+ *
+ * GLOBAL INTERRUPT CONTROL
+ * ┌──────────────────┬─────────────────────────────────────────┐
+ * │   Function       │   Description                           │
+ * ├──────────────────┼─────────────────────────────────────────┤
+ * │ sei()            │ Set Global Interrupt Enable (I-bit)     │
+ * │                  │ MUST call after enabling RXCIE1/UDRIE1  │
+ * │                  │ Use: sei(); // Enable interrupts        │
+ * ├──────────────────┼─────────────────────────────────────────┤
+ * │ cli()            │ Clear Global Interrupt Enable           │
+ * │                  │ Disables ALL interrupts temporarily     │
+ * │                  │ Use: cli(); // Critical section         │
+ * └──────────────────┴─────────────────────────────────────────┘
+ *
+ * UART INTERRUPT VECTORS (ATmega128)
+ * ┌───────────────────────┬──────────────┬───────────────────────┐
+ * │ Interrupt Vector      │ Trigger      │ Enable Bit            │
+ * ├───────────────────────┼──────────────┼───────────────────────┤
+ * │ ISR(USART1_RX_vect)   │ RXC1 flag    │ RXCIE1 (UCSR1B bit 7) │
+ * │                       │ Data arrived │ ISR called when byte  │
+ * │                       │ in UDR1      │ received              │
+ * ├───────────────────────┼──────────────┼───────────────────────┤
+ * │ ISR(USART1_UDRE_vect) │ UDRE1 flag   │ UDRIE1 (UCSR1B bit 5) │
+ * │                       │ UDR1 empty   │ ISR called when ready │
+ * │                       │ and ready    │ to send next byte     │
+ * ├───────────────────────┼──────────────┼───────────────────────┤
+ * │ ISR(USART1_TX_vect)   │ TXC1 flag    │ TXCIE1 (UCSR1B bit 6) │
+ * │                       │ Frame fully  │ Rarely used           │
+ * │                       │ transmitted  │                       │
+ * └───────────────────────┴──────────────┴───────────────────────┘
+ *
+ * ISR PROGRAMMING RULES (CRITICAL FOR STUDENTS):
+ *
+ * 1. KEEP ISR SHORT AND FAST
+ *    - ISRs block other interrupts (unless nested)
+ *    - Do minimal work: read/write data, update flags, return quickly
+ *    - DON'T: Call printf(), delay(), complex calculations
+ *    - DO: Read UDR1, write to buffer, set flags
+ *
+ * 2. USE VOLATILE FOR SHARED VARIABLES
+ *    volatile uint8_t rx_buffer[32];
+ *    volatile uint8_t rx_head = 0, rx_tail = 0;
+ *    - Prevents compiler optimization that breaks ISR/main() communication
+ *    - ALL variables accessed by both ISR and main() MUST be volatile
+ *
+ * 3. ATOMIC OPERATIONS FOR MULTI-BYTE DATA
+ *    cli();                    // Disable interrupts
+ *    uint16_t count = counter; // Read multi-byte variable
+ *    sei();                    // Re-enable interrupts
+ *
+ * 4. FLAG CLEARING IS AUTOMATIC FOR UART
+ *    - Reading UDR1 clears RXC1 flag automatically
+ *    - Writing UDR1 clears UDRE1 flag automatically
+ *    - No manual flag clearing needed!
+ *
+ * 5. DISABLE UDRIE1 WHEN NO DATA TO SEND
+ *    ISR(USART1_UDRE_vect) {
+ *        if (tx_head == tx_tail) {
+ *            UCSR1B &= ~(1<<UDRIE1); // DISABLE interrupt when buffer empty
+ *            return;
+ *        }
+ *        UDR1 = tx_buffer[tx_tail++];
+ *    }
+ *    - UDRIE1 fires CONTINUOUSLY when UDR1 empty
+ *    - Must disable to prevent infinite ISR calls
+ *
+ * INITIALIZATION SEQUENCE (INTERRUPT MODE):
+ *
+ * Step 1: Configure UART hardware
+ *   UCSR1A = (1<<U2X1);                    // Double speed
+ *   UCSR1C = (1<<UCSZ11) | (1<<UCSZ10);   // 8-bit data
+ *   UBRR1H = (UBRR >> 8);                  // Baud rate high
+ *   UBRR1L = UBRR;                         // Baud rate low
+ *
+ * Step 2: Enable RX/TX and RX interrupt
+ *   UCSR1B = (1<<RXCIE1) | (1<<RXEN1) | (1<<TXEN1);
+ *   // Note: UDRIE1 NOT enabled yet (enable only when data to send)
+ *
+ * Step 3: Enable global interrupts
+ *   sei(); // Now ISRs can fire
+ *
+ * Step 4: To send data later
+ *   tx_buffer[tx_head++] = data;    // Put data in buffer
+ *   UCSR1B |= (1<<UDRIE1);          // Enable TX interrupt
+ *
+ * =============================================================================
+ * CIRCULAR BUFFER IMPLEMENTATION - FOR INTERRUPT MODE
+ * =============================================================================
+ *
+ * PURPOSE: Decouple ISR from main() for efficient buffering
+ *
+ * STRUCTURE:
+ * ┌───┬───┬───┬───┬───┬───┬───┬───┐
+ * │ 0 │ 1 │ 2 │ 3 │ 4 │ 5 │ 6 │ 7 │ ... buffer[32]
+ * └───┴───┴───┴───┴───┴───┴───┴───┘
+ *   ↑               ↑
+ *  tail            head
+ *  (read)         (write)
+ *
+ * VARIABLES (ALL MUST BE VOLATILE):
+ *   volatile uint8_t buffer[BUFFER_SIZE];
+ *   volatile uint8_t head = 0; // Next write position
+ *   volatile uint8_t tail = 0; // Next read position
+ *
+ * OPERATIONS:
+ *
+ * Write (by ISR):
+ *   buffer[head] = data;
+ *   head = (head + 1) % BUFFER_SIZE; // Wrap around
+ *
+ * Read (by main):
+ *   if (head != tail) {              // Check not empty
+ *       data = buffer[tail];
+ *       tail = (tail + 1) % BUFFER_SIZE;
+ *   }
+ *
+ * Check if empty:
+ *   if (head == tail) // Buffer empty
+ *
+ * Check if full:
+ *   if (((head + 1) % BUFFER_SIZE) == tail) // Buffer full
  *
  * =============================================================================
  */
 
 #include "config.h"
+#include <avr/pgmspace.h> // For PROGMEM string storage in flash
 
-// Function prototypes
+// Forward declaration for UART functions
+void putch_USART1(char c);
+
+// Helper function to send strings from flash memory
+void puts_USART1_P(const char *str)
+{
+    char c;
+    while ((c = pgm_read_byte(str++)))
+    {
+        putch_USART1(c);
+    }
+}
+
+// Function prototypes for 6 educational demos (2×3 matrix)
 void simple_init_serial(void);
-void demo_polling_echo(void);
-void demo_polling_commands(void);
-void demo_polling_buffered(void);
-void demo_interrupt_echo(void);
-void demo_interrupt_tx_queue(void);
-void demo_interrupt_bidirectional(void);
-void demo_interrupt_commands(void);
-void demo_interrupt_advanced(void);
+
+// POLLING METHOD DEMOS (Left column: Simple but CPU-blocking)
+void demo_polling_char_echo(void);     // Demo 1: Single character echo (polling)
+void demo_polling_word_echo(void);     // Demo 2: Word echo with space delimiter (polling)
+void demo_polling_sentence_echo(void); // Demo 3: Sentence echo with line delimiter (polling)
+
+// INTERRUPT METHOD DEMOS (Right column: Complex but CPU-efficient)
+void demo_interrupt_char_echo(void);     // Demo 4: Single character echo (interrupt)
+void demo_interrupt_word_echo(void);     // Demo 5: Word echo with circular buffer (interrupt)
+void demo_interrupt_sentence_echo(void); // Demo 6: Sentence echo with full duplex (interrupt)
 
 /*
  * =============================================================================
- * EDUCATIONAL COMPARISON: POLLING vs INTERRUPT METHODS
+ * DEMO SELECTION GUIDE - 2×3 PEDAGOGICAL MATRIX
  * =============================================================================
  *
- * USAGE: To select a demo, uncomment the desired function call in main()
+ * USAGE: In main(), uncomment ONE demo to run. Compare across rows or columns:
  *
- * POLLING DEMOS (CPU waits for data):
- * - demo_polling_echo()              : Simple character echo using polling
- * - demo_polling_commands()          : Command processing using polling
- * - demo_polling_buffered()          : Simple buffering with polling
+ * ┌──────────────────────────────────────────────────────────────────┐
+ * │                  POLLING (Simple/Blocking)                       │
+ * ├──────────────────────────────────────────────────────────────────┤
+ * │ Demo 1: demo_polling_char_echo()                                 │
+ * │         Single character echo - learn basic getch/putch          │
+ * │         Shows how CPU blocks waiting for each character          │
+ * │                                                                  │
+ * │ Demo 2: demo_polling_word_echo()                                 │
+ * │         Word echo (space-delimited) - learn manual buffering     │
+ * │         Shows polling with simple parsing logic                  │
+ * │                                                                  │
+ * │ Demo 3: demo_polling_sentence_echo()                             │
+ * │         Sentence echo (line-delimited) - learn protocol design   │
+ * │         Shows polling with command processing                    │
+ * └──────────────────────────────────────────────────────────────────┘
  *
- * INTERRUPT DEMOS (CPU continues while interrupts handle data):
- * - demo_interrupt_echo()            : Character echo using RX interrupts
- * - demo_interrupt_tx_queue()        : TX queue using interrupts
- * - demo_interrupt_bidirectional()   : Full duplex interrupt communication
- * - demo_interrupt_advanced()        : Advanced interrupt buffering
+ * ┌──────────────────────────────────────────────────────────────────┐
+ * │                INTERRUPT (Efficient/Non-blocking)                │
+ * ├──────────────────────────────────────────────────────────────────┤
+ * │ Demo 4: demo_interrupt_char_echo()                               │
+ * │         Single character echo - learn ISR programming            │
+ * │         Shows how CPU continues other work during RX/TX          │
+ * │         Compare with Demo 1 to see efficiency difference!        │
+ * │                                                                  │
+ * │ Demo 5: demo_interrupt_word_echo()                               │
+ * │         Word echo with ISR - learn circular buffer management    │
+ * │         Shows interrupt-driven parsing and buffering             │
+ * │         Compare with Demo 2 to see CPU freedom!                  │
+ * │                                                                  │
+ * │ Demo 6: demo_interrupt_sentence_echo()                           │
+ * │         Sentence echo with ISR - learn full duplex protocol      │
+ * │         Shows advanced ISR with command processing               │
+ * │         Compare with Demo 3 to see true non-blocking I/O!        │
+ * └──────────────────────────────────────────────────────────────────┘
+ *
+ * LEARNING STRATEGY:
+ * - Horizontal comparison: Compare Demo 1 vs Demo 4 (same granularity)
+ * - Vertical progression: Go from Demo 1 → Demo 2 → Demo 3 (increasing complexity)
+ * - Full mastery: Understand all 6 demos and their trade-offs
  */
 
 // Simple initialization function (no LCD needed for serial communication)
@@ -183,7 +557,6 @@ char getch_USART1(void)
 // Check if data is available for reading - EDUCATIONAL VERSION
 unsigned char data_available_USART1(void)
 {
-    return (UCSR1A & (1 << RXC1)) ? 1 : 0;
     // Students learn to check RXC1 flag without blocking
     return (UCSR1A & (1 << RXC1)) ? 1 : 0;
 }
@@ -198,171 +571,261 @@ unsigned char data_available_USART1(void)
  */
 
 /*
- * Demo 1: Basic Polling Echo
- * Simple character echo using polling method - CPU waits for each character
+ * =============================================================================
+ * DEMO 1: POLLING CHARACTER ECHO
+ * =============================================================================
+ * DATA GRANULARITY: Single character
+ * METHOD: Polling (CPU blocks on each character)
+ *
+ * LEARNING FOCUS:
+ * - Basic UART functions: getch_USART1() and putch_USART1()
+ * - Understanding CPU blocking during polling
+ * - Simple echo pattern: receive → send back
+ *
+ * COMPARE WITH: Demo 4 (interrupt character echo) to see CPU efficiency difference
  */
-void demo_polling_echo(void)
+void demo_polling_char_echo(void)
 {
     // Initialize UART for polling communication
     init_uart_polling();
 
-    puts_USART1("\r\n=== DEMO 1: Polling Echo ===\r\n");
-    puts_USART1("POLLING METHOD: CPU waits for each character\r\n");
-    puts_USART1("Type characters - they will be echoed back\r\n");
-    puts_USART1("Press 'q' to quit this demo\r\n\r\n");
+    // Store strings in flash memory to save SRAM
+    puts_USART1_P(PSTR("\r\n=== DEMO 1: Polling Char Echo ===\r\n"));
+    puts_USART1_P(PSTR("Polling: CPU blocks. Type chars, press 'q' to quit.\r\n\r\n"));
 
+    unsigned int char_count = 0;
     char received;
+
     while (1)
     {
-        // POLLING: CPU waits here until character received
-        received = getch_USART1(); // This function blocks/waits
+        // EDUCATIONAL POINT: CPU is BLOCKED here waiting for character
+        // No other work can be done during this wait!
+        received = getch_USART1(); // <-- CPU BLOCKS HERE
+        char_count++;
 
+        // Exit condition
         if (received == 'q' || received == 'Q')
         {
             break;
         }
 
-        // Echo character back immediately
+        // Echo character back (also blocks during transmission)
+        putch_USART1(received); // <-- CPU BLOCKS HERE TOO
+
+        // Show statistics periodically
+        if ((char_count % 10) == 0)
+        {
+            puts_USART1(" [");
+            putch_USART1('0' + (char_count / 10) % 10);
+            putch_USART1('0' + char_count % 10);
+            puts_USART1(" chars, CPU blocked every time]");
+        }
+    }
+
+    puts_USART1("\r\n\r\n[DEMO 1 COMPLETE]\r\n");
+    puts_USART1("Total characters echoed: ");
+    putch_USART1('0' + (char_count / 10) % 10);
+    putch_USART1('0' + char_count % 10);
+    puts_USART1("\r\nCPU was blocked ");
+    putch_USART1('0' + (char_count / 10) % 10);
+    putch_USART1('0' + char_count % 10);
+    puts_USART1(" times waiting for I/O\r\n");
+    puts_USART1("Compare this with Demo 4 (interrupt method)!\r\n\r\n");
+}
+
+/*
+ * =============================================================================
+ * DEMO 2: POLLING WORD ECHO
+ * =============================================================================
+ * DATA GRANULARITY: Word (space-delimited)
+ * METHOD: Polling with manual buffer
+ *
+ * LEARNING FOCUS:
+ * - Manual buffer management for word assembly
+ * - Character-by-character polling with parsing
+ * - Space as word delimiter
+ * - CPU still blocks but now processes complete words
+ *
+ * COMPARE WITH: Demo 5 (interrupt word echo) to see buffer efficiency
+ */
+void demo_polling_word_echo(void)
+{
+    puts_USART1_P(PSTR("\r\n=== DEMO 2: Polling Word Echo ===\r\n"));
+    puts_USART1_P(PSTR("Polling: words echo on space. Type 'quit' to exit.\r\n\r\n"));
+
+    char word_buffer[32];
+    unsigned char word_index = 0;
+    char received;
+    unsigned int word_count = 0;
+
+    while (1)
+    {
+        // POLLING: CPU blocks waiting for each character
+        received = getch_USART1(); // <-- CPU BLOCKS
+
+        // Echo the character for user feedback
         putch_USART1(received);
 
-        // Show that CPU was blocked during getch_USART1()
-        puts_USART1(" [CPU was blocked while waiting] ");
-    }
-
-    puts_USART1("\r\nPolling Demo 1 completed.\r\n");
-}
-
-/*
- * Demo 2: Polling Command Processing
- * Command processing using polling - inefficient but simple
- */
-void demo_polling_commands(void)
-{
-    puts_USART1("\r\n=== DEMO 2: Polling Commands ===\r\n");
-    puts_USART1("POLLING METHOD: CPU waits for each command character\r\n");
-    puts_USART1("Commands: 'time', 'status', 'help', 'quit'\r\n\r\n");
-
-    char command[32];
-    unsigned char cmd_index = 0;
-    char received;
-    unsigned int message_count = 0;
-
-    puts_USART1("POLL> ");
-
-    while (1)
-    {
-        // POLLING: CPU blocks here waiting for each character
-        received = getch_USART1();
-
-        if (received == '\r' || received == '\n')
+        // Check for word delimiter (space or enter)
+        if (received == ' ' || received == '\r' || received == '\n')
         {
-            command[cmd_index] = '\0';
-            message_count++;
-
-            puts_USART1("\r\n");
-
-            // Process the complete command
-            if (strcmp(command, "time") == 0)
+            if (word_index > 0)
             {
-                puts_USART1("[POLLING TIME] Count: ");
-                putch_USART1('0' + (message_count % 10));
+                word_buffer[word_index] = '\0'; // Null-terminate the word
+                word_count++;
+
+                // Check for quit command
+                if (strcmp(word_buffer, "quit") == 0)
+                {
+                    puts_USART1("\r\n[Exiting Demo 2]\r\n");
+                    break;
+                }
+
+                // Echo the complete word back
+                puts_USART1(" → ECHO: [");
+                puts_USART1(word_buffer);
+                puts_USART1("] ");
+
+                // Show statistics
+                if ((word_count % 5) == 0)
+                {
+                    puts_USART1(" (");
+                    putch_USART1('0' + (word_count / 10) % 10);
+                    putch_USART1('0' + word_count % 10);
+                    puts_USART1(" words, CPU blocked for each char)");
+                }
+
                 puts_USART1("\r\n");
-            }
-            else if (strcmp(command, "status") == 0)
-            {
-                puts_USART1("[POLLING STATUS] CPU was blocked ");
-                putch_USART1('0' + (message_count % 10));
-                puts_USART1(" times waiting for input\r\n");
-            }
-            else if (strcmp(command, "help") == 0)
-            {
-                puts_USART1("[POLLING HELP] Commands: time, status, help, quit\r\n");
-                puts_USART1("Note: CPU blocks on each character with polling\r\n");
-            }
-            else if (strcmp(command, "quit") == 0)
-            {
-                puts_USART1("[POLLING EXIT] Exiting polling demo\r\n");
-                break;
-            }
-            else if (cmd_index > 0)
-            {
-                puts_USART1("[POLLING ERROR] Unknown: '");
-                puts_USART1(command);
-                puts_USART1("'\r\n");
-            }
 
-            cmd_index = 0;
-            puts_USART1("POLL> ");
+                // Reset buffer for next word
+                word_index = 0;
+            }
         }
+        // Handle backspace
         else if (received == '\b' || received == 127)
         {
-            if (cmd_index > 0)
+            if (word_index > 0)
             {
-                cmd_index--;
-                puts_USART1("\b \b");
+                word_index--;
+                puts_USART1(" \b"); // Erase character from screen
             }
         }
-        else if (cmd_index < 31 && received >= ' ')
+        // Add character to word buffer
+        else if (word_index < 31 && received >= ' ')
         {
-            command[cmd_index++] = received;
-            putch_USART1(received);
+            word_buffer[word_index++] = received;
         }
     }
 
-    puts_USART1("\r\nPolling Demo 2 completed.\r\n");
+    puts_USART1("\r\n[DEMO 2 COMPLETE]\r\n");
+    puts_USART1("Total words echoed: ");
+    putch_USART1('0' + (word_count / 10) % 10);
+    putch_USART1('0' + word_count % 10);
+    puts_USART1("\r\nCPU blocked on every character, echoed complete words\r\n");
+    puts_USART1("Compare this with Demo 5 (interrupt word echo)!\r\n\r\n");
 }
 
 /*
- * Demo 3: Polling with Simple Buffering
- * Shows manual buffering with polling (still inefficient)
+ * =============================================================================
+ * DEMO 3: POLLING SENTENCE ECHO
+ * =============================================================================
+ * DATA GRANULARITY: Sentence (line-delimited, multi-word)
+ * METHOD: Polling with line buffering
+ *
+ * LEARNING FOCUS:
+ * - Line buffering (collecting until Enter pressed)
+ * - Multi-word parsing and protocol design
+ * - Complete line echo pattern
+ * - CPU blocked but processes full sentences
+ *
+ * COMPARE WITH: Demo 6 (interrupt sentence echo) for full duplex efficiency
  */
-void demo_polling_buffered(void)
+void demo_polling_sentence_echo(void)
 {
-    puts_USART1("\r\n=== DEMO 3: Polling with Manual Buffer ===\r\n");
-    puts_USART1("POLLING METHOD: Manual buffer check, CPU still waits\r\n");
-    puts_USART1("Type 's' for stats, 'q' to quit\r\n\r\n");
+    puts_USART1_P(PSTR("\r\n=== DEMO 3: Polling Sentence Echo ===\r\n"));
+    puts_USART1_P(PSTR("Polling: sentences echo on Enter. Type 'quit' to exit.\r\n\r\n"));
 
-    char simple_buffer[16];
-    unsigned char buffer_count = 0;
+    char line_buffer[64];
+    unsigned char line_index = 0;
     char received;
-    unsigned int total_chars = 0;
+    unsigned int line_count = 0;
+
+    puts_USART1("Type sentence> ");
 
     while (1)
     {
-        // POLLING: Still blocks CPU, but we manually manage a buffer
-        received = getch_USART1();
-        total_chars++;
+        // POLLING: CPU blocks waiting for each character
+        received = getch_USART1(); // <-- CPU BLOCKS
 
-        if (received == 's' || received == 'S')
+        // Echo character for user feedback
+        putch_USART1(received);
+
+        // Check for line delimiter (Enter key)
+        if (received == '\r' || received == '\n')
         {
-            puts_USART1("\r\n[POLLING STATS] Buffer: ");
-            putch_USART1('0' + (buffer_count % 10));
-            puts_USART1(", Total: ");
-            putch_USART1('0' + (total_chars % 10));
-            puts_USART1(" (CPU blocked each time)\r\n");
-            buffer_count = 0; // Reset buffer
-        }
-        else if (received == 'q' || received == 'Q')
-        {
-            break;
-        }
-        else
-        {
-            // Add to simple buffer (no interrupt needed)
-            if (buffer_count < 15)
+            if (line_index > 0)
             {
-                simple_buffer[buffer_count++] = received;
-            }
+                line_buffer[line_index] = '\0'; // Null-terminate
+                line_count++;
 
-            // Echo with buffer info
-            putch_USART1('[');
-            putch_USART1('0' + (buffer_count % 10));
-            putch_USART1(']');
-            putch_USART1(received);
+                // Check for quit command
+                if (strcmp(line_buffer, "quit") == 0)
+                {
+                    puts_USART1("\r\n[Exiting Demo 3]\r\n");
+                    break;
+                }
+
+                // Echo the complete sentence back
+                puts_USART1("\r\n→ SENTENCE ECHO: \"");
+                puts_USART1(line_buffer);
+                puts_USART1("\"\r\n");
+
+                // Show statistics every 3 sentences
+                if ((line_count % 3) == 0)
+                {
+                    puts_USART1("   [");
+                    putch_USART1('0' + (line_count / 10) % 10);
+                    putch_USART1('0' + line_count % 10);
+                    puts_USART1(" sentences, ");
+                    putch_USART1('0' + (line_index / 10) % 10);
+                    putch_USART1('0' + line_index % 10);
+                    puts_USART1(" chars, CPU blocked on each]\r\n");
+                }
+
+                puts_USART1("Type sentence> ");
+
+                // Reset buffer for next sentence
+                line_index = 0;
+            }
+        }
+        // Handle backspace
+        else if (received == '\b' || received == 127)
+        {
+            if (line_index > 0)
+            {
+                line_index--;
+                puts_USART1(" \b"); // Erase character from screen
+            }
+        }
+        // Add character to line buffer
+        else if (line_index < 63 && received >= ' ')
+        {
+            line_buffer[line_index++] = received;
+        }
+        // Buffer overflow warning
+        else if (line_index >= 63)
+        {
+            puts_USART1("\r\n[BUFFER FULL - Press Enter]\r\n");
         }
     }
 
-    puts_USART1("\r\nPolling Demo 3 completed.\r\n");
+    puts_USART1("\r\n[DEMO 3 COMPLETE]\r\n");
+    puts_USART1("Total sentences echoed: ");
+    putch_USART1('0' + (line_count / 10) % 10);
+    putch_USART1('0' + line_count % 10);
+    puts_USART1("\r\nCPU blocked for every character, echoed complete sentences\r\n");
+    puts_USART1("This is the most common polling pattern for command-line interfaces\r\n");
+    puts_USART1("Compare this with Demo 6 (interrupt sentence echo)!\r\n\r\n");
 }
 
 /*
@@ -591,22 +1054,28 @@ char get_char_from_buffer(void)
  */
 
 /*
- * Demo 4: Basic RX Interrupt Echo
- * Uses real ISR(USART1_RX_vect) to receive characters
- * Students learn: How interrupts work, non-blocking I/O, ISR programming
+ * =============================================================================
+ * DEMO 4: INTERRUPT CHARACTER ECHO
+ * =============================================================================
+ * DATA GRANULARITY: Single character
+ * METHOD: Interrupt-driven with ISR (CPU non-blocking)
+ *
+ * LEARNING FOCUS:
+ * - Real ISR programming: ISR(USART1_RX_vect) and ISR(USART1_UDRE_vect)
+ * - Circular buffer for RX and TX
+ * - CPU continues other work while ISRs handle I/O
+ * - Volatile variables for ISR-main communication
+ *
+ * COMPARE WITH: Demo 1 (polling character echo) to see CPU freedom!
  */
-void demo_interrupt_echo(void)
+void demo_interrupt_char_echo(void)
 {
     // EDUCATIONAL: Initialize interrupt-based UART (see ISRs above!)
     init_uart_interrupts();
 
     // Send initial messages using polling (before interrupts fully active)
-    puts_USART1("\r\n=== DEMO 4: Interrupt Echo ===\r\n");
-    puts_USART1("INTERRUPT METHOD: CPU continues other work while ISR handles data\r\n");
-    puts_USART1("Students observe: ISR(USART1_RX_vect) and ISR(USART1_UDRE_vect) handle all I/O\r\n");
-    puts_USART1("Type characters - they will be echoed back using REAL interrupts\r\n");
-    puts_USART1("Notice: CPU can do other tasks while ISRs handle serial communication\r\n");
-    puts_USART1("Press 'q' to quit this demo\r\n\r\n");
+    puts_USART1_P(PSTR("\r\n=== DEMO 4: Interrupt Char Echo ===\r\n"));
+    puts_USART1_P(PSTR("Interrupt: CPU free! ISRs handle I/O. Press 'q' to quit.\r\n\r\n"));
 
     _delay_ms(100); // Let initial messages complete
 
@@ -657,287 +1126,227 @@ void demo_interrupt_echo(void)
 }
 
 /*
- * Demo Mode 2: TX Interrupt with Queued Transmission
- * Demonstrates buffered transmission using TX interrupts
+ * =============================================================================
+ * DEMO 5: INTERRUPT WORD ECHO
+ * =============================================================================
+ * DATA GRANULARITY: Word (space-delimited)
+ * METHOD: Interrupt-driven with ISR circular buffer
+ *
+ * LEARNING FOCUS:
+ * - Word assembly in ISR buffer
+ * - Space delimiter parsing with interrupts
+ * - Non-blocking word collection
+ * - Compare efficiency with Demo 2 (polling word echo)
+ *
+ * COMPARE WITH: Demo 2 (polling word echo) to see buffer management difference
  */
-void demo_interrupt_tx_queue(void)
+void demo_interrupt_word_echo(void)
 {
-    communication_mode = 2;
-
     // Initialize UART for interrupt-based communication
     init_uart_interrupts();
 
-    send_string_interrupt("\r\n=== DEMO 5: TX Interrupt Queue ===\r\n");
-    send_string_interrupt("INTERRUPT METHOD: Queued transmission frees CPU\r\n");
-    send_string_interrupt("CPU can do other tasks while interrupts handle transmission\r\n");
-    send_string_interrupt("Sending multiple messages using TX interrupt queue...\r\n\r\n");
+    puts_USART1_P(PSTR("\r\n=== DEMO 5: Interrupt Word Echo ===\r\n"));
+    puts_USART1_P(PSTR("Interrupt: words via ISR. Type 'quit' to exit.\r\n\r\n"));
 
-    // Send multiple messages quickly to demonstrate queuing
-    for (int i = 1; i <= 5; i++)
-    {
-        send_string_interrupt("Message ");
-        send_char_interrupt('0' + i);
-        send_string_interrupt(" - Queued transmission\r\n");
-        _delay_ms(100); // Small delay between messages
-    }
+    _delay_ms(100); // Let messages transmit
 
-    send_string_interrupt("\r\nAll messages transmitted via interrupt queue.\r\n");
-    send_string_interrupt("Press any key to continue...\r\n");
-
-    getch_USART1(); // Wait for key press
-}
-
-/*
- * Demo Mode 3: Bidirectional Interrupts (Full Duplex)
- * Simultaneous RX and TX interrupts for real-time communication
- */
-void demo_interrupt_bidirectional(void)
-{
-    communication_mode = 3;
-
-    // Initialize UART for interrupt-based communication
-    init_uart_interrupts();
-
-    puts_USART1("\r\n=== DEMO 6: Bidirectional Interrupts ===\r\n");
-    puts_USART1("INTERRUPT METHOD: Full duplex communication with RX and TX interrupts\r\n");
-    puts_USART1("Compare responsiveness with polling methods (Demos 1-3)\r\n");
-    puts_USART1("Type commands and press Enter to execute\r\n");
-    puts_USART1("Commands: 'time', 'status', 'help', 'quit'\r\n\r\n");
-
-    char command[32];
-    unsigned char cmd_index = 0;
+    char word_buffer[32];
+    unsigned char word_index = 0;
     char received;
-    unsigned int message_count = 0;
-
-    puts_USART1("BIDIR> ");
+    unsigned int word_count = 0;
+    unsigned int cpu_counter = 0;
 
     while (1)
     {
-        // Use interrupt buffer instead of direct register access
+        // EDUCATIONAL: CPU is FREE to do other work!
+        cpu_counter++;
+        if ((cpu_counter % 50000) == 0)
+        {
+            // This proves CPU is not blocked!
+            // In polling, this would never execute while waiting for input
+        }
+
+        // Check ISR buffer (non-blocking!)
         if (chars_available())
         {
             received = get_char_from_buffer();
 
+            // Echo character back via ISR
+            send_char_interrupt(received);
+
+            // Word delimiter check
+            if (received == ' ' || received == '\r' || received == '\n')
+            {
+                if (word_index > 0)
+                {
+                    word_buffer[word_index] = '\0';
+                    word_count++;
+
+                    // Check quit command
+                    if (strcmp(word_buffer, "quit") == 0)
+                    {
+                        send_string_interrupt("\r\n[Exiting Demo 5]\r\n");
+                        break;
+                    }
+
+                    // Echo complete word
+                    send_string_interrupt(" → ECHO: [");
+                    send_string_interrupt(word_buffer);
+                    send_string_interrupt("]");
+
+                    if ((word_count % 5) == 0)
+                    {
+                        send_string_interrupt(" (");
+                        send_char_interrupt('0' + (word_count / 10) % 10);
+                        send_char_interrupt('0' + word_count % 10);
+                        send_string_interrupt(" words, CPU was FREE!)");
+                    }
+                    send_string_interrupt("\r\n");
+
+                    word_index = 0;
+                }
+            }
+            // Backspace
+            else if (received == '\b' || received == 127)
+            {
+                if (word_index > 0)
+                {
+                    word_index--;
+                    send_string_interrupt(" \b");
+                }
+            }
+            // Add to buffer
+            else if (word_index < 31 && received >= ' ')
+            {
+                word_buffer[word_index++] = received;
+            }
+        }
+
+        // Small delay (CPU still free during this!)
+        _delay_ms(5);
+    }
+
+    send_string_interrupt("\r\n[DEMO 5 COMPLETE]\r\n");
+    send_string_interrupt("Words echoed: ");
+    send_char_interrupt('0' + (word_count / 10) % 10);
+    send_char_interrupt('0' + word_count % 10);
+    send_string_interrupt("\r\nISRs handled ALL I/O, CPU was free!\r\n");
+    send_string_interrupt("Compare with Demo 2 (polling word echo)!\r\n\r\n");
+}
+
+/*
+ * =============================================================================
+ * DEMO 6: INTERRUPT SENTENCE ECHO
+ * =============================================================================
+ * DATA GRANULARITY: Sentence (line-delimited, multi-word)
+ * METHOD: Interrupt full duplex with command protocol
+ *
+ * LEARNING FOCUS:
+ * - Full duplex ISR communication
+ * - Line buffering with interrupts
+ * - Command protocol design with ISR
+ * - Complete non-blocking sentence processing
+ *
+ * COMPARE WITH: Demo 3 (polling sentence echo) for maximum efficiency gain
+ */
+void demo_interrupt_sentence_echo(void)
+{
+    // Initialize UART for interrupt-based communication
+    init_uart_interrupts();
+
+    puts_USART1_P(PSTR("\r\n=== DEMO 6: Interrupt Sentence Echo ===\r\n"));
+    puts_USART1_P(PSTR("Interrupt: sentences via ISR. Type 'quit' to exit.\r\n\r\n"));
+
+    _delay_ms(100);
+
+    char line_buffer[64];
+    unsigned char line_index = 0;
+    char received;
+    unsigned int line_count = 0;
+    unsigned int cpu_counter = 0;
+
+    send_string_interrupt("Type sentence> ");
+
+    while (1)
+    {
+        // EDUCATIONAL: CPU is FREE to do other work!
+        cpu_counter++;
+        if ((cpu_counter % 50000) == 0)
+        {
+            // CPU continues working while ISRs handle I/O
+        }
+
+        // Check ISR buffer (non-blocking!)
+        if (chars_available())
+        {
+            received = get_char_from_buffer();
+
+            // Echo via ISR
+            send_char_interrupt(received);
+
+            // Line delimiter check
             if (received == '\r' || received == '\n')
             {
-                command[cmd_index] = '\0';
-                message_count++;
+                if (line_index > 0)
+                {
+                    line_buffer[line_index] = '\0';
+                    line_count++;
 
-                puts_USART1("\r\n");
+                    // Check quit
+                    if (strcmp(line_buffer, "quit") == 0)
+                    {
+                        send_string_interrupt("\r\n[Exiting Demo 6]\r\n");
+                        break;
+                    }
 
-                // Process the complete command
-                if (strcmp(command, "time") == 0)
-                {
-                    puts_USART1("[TIME] Uptime: ");
-                    putch_USART1('0' + (message_count % 10));
-                    puts_USART1(" minutes\r\n");
-                }
-                else if (strcmp(command, "status") == 0)
-                {
-                    puts_USART1("[STATUS] System OK, Messages: ");
-                    putch_USART1('0' + (message_count % 10));
-                    puts_USART1(", Mode: Bidirectional\r\n");
-                }
-                else if (strcmp(command, "help") == 0)
-                {
-                    puts_USART1("[HELP] Available commands:\r\n");
-                    puts_USART1("  time   - Show uptime\r\n");
-                    puts_USART1("  status - Show system status\r\n");
-                    puts_USART1("  help   - Show this help\r\n");
-                    puts_USART1("  quit   - Exit demo\r\n");
-                }
-                else if (strcmp(command, "quit") == 0)
-                {
-                    puts_USART1("[EXIT] Exiting bidirectional demo\r\n");
-                    break;
-                }
-                else if (cmd_index > 0)
-                {
-                    puts_USART1("[ERROR] Unknown command: '");
-                    puts_USART1(command);
-                    puts_USART1("'\r\n");
-                }
+                    // Echo complete sentence
+                    send_string_interrupt("\r\n→ SENTENCE ECHO: \"");
+                    send_string_interrupt(line_buffer);
+                    send_string_interrupt("\"\r\n");
 
-                cmd_index = 0;
-                puts_USART1("BIDIR> ");
+                    if ((line_count % 3) == 0)
+                    {
+                        send_string_interrupt("   [");
+                        send_char_interrupt('0' + (line_count / 10) % 10);
+                        send_char_interrupt('0' + line_count % 10);
+                        send_string_interrupt(" sentences, CPU was FREE!]\r\n");
+                    }
+
+                    send_string_interrupt("Type sentence> ");
+                    line_index = 0;
+                }
             }
+            // Backspace
             else if (received == '\b' || received == 127)
-            { // Backspace
-                if (cmd_index > 0)
+            {
+                if (line_index > 0)
                 {
-                    cmd_index--;
-                    puts_USART1("\b \b");
+                    line_index--;
+                    send_string_interrupt(" \b");
                 }
             }
-            else if (cmd_index < 31 && received >= ' ')
+            // Add to buffer
+            else if (line_index < 63 && received >= ' ')
             {
-                command[cmd_index++] = received;
-                putch_USART1(received);
+                line_buffer[line_index++] = received;
+            }
+            // Buffer full
+            else if (line_index >= 63)
+            {
+                send_string_interrupt("\r\n[BUFFER FULL - Press Enter]\r\n");
             }
         }
 
-        // Small delay to prevent busy waiting
-        _delay_ms(10);
+        // Small delay (CPU still free!)
+        _delay_ms(5);
     }
 
-    puts_USART1("\r\nDemo 3 completed.\r\n");
-}
-
-/*
- * Demo Mode 4: Command Processing via Interrupts
- * Real-time command interpreter using interrupt-driven communication
- */
-void demo_interrupt_commands(void)
-{
-    communication_mode = 4;
-    command_ready = 0;
-
-    // Initialize UART for interrupt-based communication
-    init_uart_interrupts();
-
-    puts_USART1("\r\n=== DEMO 4: Command Processing ===\r\n");
-    puts_USART1("Real-time command processing via interrupts\r\n");
-    puts_USART1("Available commands:\r\n");
-    puts_USART1("  led on/off  - Control LED\r\n");
-    puts_USART1("  status      - Show system status\r\n");
-    puts_USART1("  reset       - Reset counters\r\n");
-    puts_USART1("  quit        - Exit demo\r\n\r\n");
-
-    char command[32];
-    unsigned char cmd_index = 0;
-    char received;
-    unsigned int led_state = 0;
-    unsigned int cmd_count = 0;
-
-    puts_USART1("CMD> ");
-
-    while (1)
-    {
-        // Use standard UART function instead of interrupt buffer
-        received = getch_USART1();
-
-        if (received == '\r')
-        {
-            command[cmd_index] = '\0';
-            cmd_count++;
-
-            // Process command
-            if (strcmp(command, "led on") == 0)
-            {
-                led_state = 1;
-                PORTB |= 0x01;
-                puts_USART1("\r\n[OK] LED turned ON\r\n");
-            }
-            else if (strcmp(command, "led off") == 0)
-            {
-                led_state = 0;
-                PORTB &= ~0x01;
-                puts_USART1("\r\n[OK] LED turned OFF\r\n");
-            }
-            else if (strcmp(command, "status") == 0)
-            {
-                puts_USART1("\r\n[STATUS] Commands: ");
-                putch_USART1('0' + (cmd_count % 10));
-                puts_USART1(", LED: ");
-                puts_USART1(led_state ? "ON" : "OFF");
-                puts_USART1(", Errors: ");
-                putch_USART1('0' + (error_count % 10));
-                puts_USART1("\r\n");
-            }
-            else if (strcmp(command, "reset") == 0)
-            {
-                cmd_count = 0;
-                error_count = 0;
-                puts_USART1("\r\n[OK] Counters reset\r\n");
-            }
-            else if (strcmp(command, "quit") == 0)
-            {
-                break;
-            }
-            else
-            {
-                puts_USART1("\r\n[ERROR] Unknown command\r\n");
-            }
-
-            cmd_index = 0;
-            puts_USART1("CMD> ");
-        }
-        else if (received == '\b' || received == 127)
-        { // Backspace
-            if (cmd_index > 0)
-            {
-                cmd_index--;
-                puts_USART1("\b \b");
-            }
-        }
-        else if (cmd_index < 31 && received >= ' ')
-        {
-            command[cmd_index++] = received;
-            putch_USART1(received);
-        }
-    }
-
-    puts_USART1("\r\nDemo 4 completed.\r\n");
-}
-
-/*
- * Demo Mode 5: Advanced Buffering with Statistics
- * Demonstrates buffer management and communication statistics
- */
-void demo_interrupt_advanced(void)
-{
-    communication_mode = 5;
-
-    // Initialize UART for interrupt-based communication
-    init_uart_interrupts();
-
-    puts_USART1("\r\n=== DEMO 5: Advanced Buffering ===\r\n");
-    puts_USART1("Buffer monitoring and statistics\r\n");
-    puts_USART1("Send rapid characters to test buffer handling\r\n");
-    puts_USART1("Press 's' for statistics, 'q' to quit\r\n\r\n");
-
-    char received;
-    unsigned int char_count = 0;
-    unsigned int stats_count = 0;
-
-    while (1)
-    {
-        // Use standard UART function instead of interrupt buffer
-        received = getch_USART1();
-        char_count++;
-
-        if (received == 's' || received == 'S')
-        {
-            stats_count++;
-            puts_USART1("\r\n=== STATISTICS ===\r\n");
-            puts_USART1("Characters processed: ");
-            // Simple number display (limited to single digits for simplicity)
-            putch_USART1('0' + (char_count % 10));
-            puts_USART1("\r\nBuffer overflows: ");
-            putch_USART1('0' + (rx_overflow % 10));
-            puts_USART1("\r\nRX Head: ");
-            putch_USART1('0' + (rx_head % 10));
-            puts_USART1(", Tail: ");
-            putch_USART1('0' + (rx_tail % 10));
-            puts_USART1("\r\nTX Busy: ");
-            puts_USART1(tx_busy ? "YES" : "NO");
-            puts_USART1("\r\n==================\r\n");
-        }
-        else if (received == 'q' || received == 'Q')
-        {
-            break;
-        }
-        else
-        {
-            // Echo with timestamp indicator
-            putch_USART1('[');
-            putch_USART1('0' + (char_count % 10));
-            putch_USART1(']');
-            putch_USART1(received);
-        }
-    }
-
-    puts_USART1("\r\nDemo 5 completed.\r\n");
+    send_string_interrupt("\r\n[DEMO 6 COMPLETE]\r\n");
+    send_string_interrupt("Sentences echoed: ");
+    send_char_interrupt('0' + (line_count / 10) % 10);
+    send_char_interrupt('0' + line_count % 10);
+    send_string_interrupt("\r\nFull duplex ISR: Maximum efficiency!\r\n");
+    send_string_interrupt("Compare with Demo 3 (polling sentence)!\r\n\r\n");
 }
 
 /*
@@ -957,37 +1366,45 @@ int main(void)
     // Initialize UART for initial message before demo selection
     init_uart_polling();
 
-    puts_USART1("IMPORTANT: Students edit main() to select ONE demo:\r\n\r\n");
+    puts_USART1_P(PSTR("\r\n=== SERIAL COMMUNICATION - 2x3 MATRIX ===\r\n"));
+    puts_USART1_P(PSTR("Edit main() to uncomment ONE demo.\r\n\r\n"));
 
-    _delay_ms(2000);
+    _delay_ms(1000);
 
-    // ===================================================================
-    // EDUCATIONAL SELECTION: Students uncomment ONE demo to learn from
-    // ===================================================================
+    // ====================================================================
+    // 2×3 EDUCATIONAL MATRIX: Select ONE demo to run
+    // ====================================================================
+    //
+    // ┌──────────────────────────────────────────────────────────────┐
+    // │ POLLING METHOD (Simple, CPU blocks)                         │
+    // ├──────────────────────────────────────────────────────────────┤
+    // │ Demo 1: Character Echo    → demo_polling_char_echo()        │
+    // │ Demo 2: Word Echo          → demo_polling_word_echo()        │
+    // │ Demo 3: Sentence Echo      → demo_polling_sentence_echo()    │
+    // └──────────────────────────────────────────────────────────────┘
+    //
+    // ┌──────────────────────────────────────────────────────────────┐
+    // │ INTERRUPT METHOD (Complex, CPU free)                        │
+    // ├──────────────────────────────────────────────────────────────┤
+    // │ Demo 4: Character Echo ISR → demo_interrupt_char_echo()      │
+    // │ Demo 5: Word Echo ISR      → demo_interrupt_word_echo()      │
+    // │ Demo 6: Sentence Echo ISR  → demo_interrupt_sentence_echo()  │
+    // └──────────────────────────────────────────────────────────────┘
 
-    // =====================================
-    // POLLING DEMOS: CPU waits for data
-    // =====================================
-    // demo_polling_echo(); // Demo 1: Simple polling (CPU blocks)
-    // demo_polling_commands();       // Demo 2: Command polling (inefficient)
-    // demo_polling_buffered();       // Demo 3: Manual buffering (still blocks)
+    // ========== POLLING TRACK (Character → Word → Sentence) ==========
+    // demo_polling_char_echo(); // Demo 1: Polling character echo ← ACTIVE
+    // demo_polling_word_echo();      // Demo 2: Polling word echo
+    // demo_polling_sentence_echo();  // Demo 3: Polling sentence echo
 
-    // ========================================
-    // INTERRUPT DEMOS: CPU continues running
-    // ========================================
-    demo_interrupt_echo(); // Demo 4: Real ISR echo (CPU free!) ← ACTIVE FOR TESTING
-    // demo_interrupt_tx_queue(); // Demo 5: TX interrupt with buffering
-    // demo_interrupt_bidirectional(); // Demo 6: Full duplex communication
-    // demo_interrupt_commands(); // Demo 7: Real-time command processing
-    // demo_interrupt_advanced(); // Demo 8: Advanced buffer monitoring
+    // ======== INTERRUPT TRACK (Character → Word → Sentence) =========
+    // demo_interrupt_char_echo();     // Demo 4: Interrupt character echo
+    // demo_interrupt_word_echo();     // Demo 5: Interrupt word echo (NEW!)
+    demo_interrupt_sentence_echo(); // Demo 6: Interrupt sentence echo
 
-    puts_USART1("\r\n=======================================================\r\n");
-    puts_USART1("EDUCATIONAL SUMMARY:\r\n");
-    puts_USART1("• Polling: Simple but blocks CPU → inefficient\r\n");
-    puts_USART1("• Interrupts: Complex but frees CPU → efficient\r\n");
-    puts_USART1("• Students must learn ISR syntax and register programming\r\n");
-    puts_USART1("• No wrapper functions - direct hardware control only!\r\n");
-    puts_USART1("=======================================================\r\n");
+    puts_USART1_P(PSTR("\r\n=== SUMMARY ===\r\n"));
+    puts_USART1_P(PSTR("Polling: Simple but blocks CPU\r\n"));
+    puts_USART1_P(PSTR("Interrupt: Complex but CPU-efficient\r\n"));
+    puts_USART1_P(PSTR("Learn 1-3 first, then 4-6. Compare pairs.\r\n"));
 
     // Keep LED blinking to show program is running
     while (1)
