@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include "../../shared_libs/_port.h"
 #include "../../shared_libs/_glcd.h"
 #include "../../shared_libs/_init.h"
