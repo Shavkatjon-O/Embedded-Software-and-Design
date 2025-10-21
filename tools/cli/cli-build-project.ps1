@@ -1,4 +1,7 @@
-param([string]$ProjectDir)
+param(
+    [string]$ProjectDir,
+    [string]$SourceFile = ""  # Optional: specify which .c file to build
+)
 
 # HARDWARE BUILD: Standard compilation with ELPM instructions for real hardware
 Write-Host "Analyzing: $ProjectDir"
@@ -28,6 +31,27 @@ if ($ProjectDir -like "*\projects\*") {
     Write-Host "Building: $name"
     Set-Location $ProjectDir
     
+    # Auto-detect source file if not specified
+    if ([string]::IsNullOrEmpty($SourceFile)) {
+        # Check for Lab.c first (lab exercises take priority)
+        if (Test-Path "Lab.c") {
+            $SourceFile = "Lab.c"
+            Write-Host "[AUTO-DETECT] Found Lab.c - building lab exercise" -ForegroundColor Cyan
+        }
+        elseif (Test-Path "Main.c") {
+            $SourceFile = "Main.c"
+            Write-Host "[AUTO-DETECT] Found Main.c - building main project" -ForegroundColor Cyan
+        }
+        else {
+            Write-Host "[ERROR] No Main.c or Lab.c found in $ProjectDir" -ForegroundColor Red
+            exit 1
+        }
+    }
+    
+    # Get base name without extension for output files
+    $BaseName = [System.IO.Path]::GetFileNameWithoutExtension($SourceFile)
+    Write-Host "Source: $SourceFile -> Output: $BaseName.elf, $BaseName.hex" -ForegroundColor Gray
+    
     # Standard AVR compiler flags (compatible with avr/io.h)
     $McStudioFlags = "-funsigned-char -funsigned-bitfields -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax"
     $ExactMcStudioFlags = "-O3"  # EXACT from MC Studio: "Optimize most (-O3)" - NOT -Os!
@@ -38,41 +62,51 @@ if ($ProjectDir -like "*\projects\*") {
     # Special handling for projects with educational interrupt programming
     if ($name -eq "Serial_interrupt") {
         Write-Host "Building Serial_interrupt for HARDWARE (with ELPM)..." -ForegroundColor Yellow
-        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') Main.c ../../shared_libs/_port.c ../../shared_libs/_uart.c ../../shared_libs/_interrupt_manager.c -lm -o Main.elf
+        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') $SourceFile ../../shared_libs/_port.c ../../shared_libs/_uart.c ../../shared_libs/_interrupt_manager.c -lm -o "$BaseName.elf"
     }
     elseif ($name -eq "Serial_Communications") {
         Write-Host "Building Serial_Communications for HARDWARE (with ELPM)..." -ForegroundColor Cyan
-        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') Main.c ../../shared_libs/_port.c -lm -o Main.elf
+        
+        # Check if building Lab.c (needs GLCD library)
+        if ($SourceFile -eq "Lab.c") {
+            Write-Host "  [LAB BUILD] Including GLCD library for Lab.c" -ForegroundColor Yellow
+            & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') $SourceFile ../../shared_libs/_glcd.c ../../shared_libs/_port.c -lm -o "$BaseName.elf"
+        }
+        else {
+            # Main.c build (no GLCD)
+            Write-Host "  [MAIN BUILD] Standard build without GLCD" -ForegroundColor Yellow
+            & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') $SourceFile ../../shared_libs/_port.c -lm -o "$BaseName.elf"
+        }
     }
     elseif ($name -eq "Graphics_Display") {
         Write-Host "Building Graphics_Display with GLCD library..." -ForegroundColor Magenta
         # Graphics Display project uses GLCD library
         # Add flag for newer SimulIDE versions (1.1.0+) that need different timing
         $SimulIDENewFlag = "-DSIMULIDE_NEW_VERSION"
-        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') $SimulIDENewFlag Main.c `
+        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') $SimulIDENewFlag $SourceFile `
             ../../shared_libs/_glcd.c `
             ../../shared_libs/_port.c `
             ../../shared_libs/_init.c `
-            -lm -o Main.elf
+            -lm -o "$BaseName.elf"
     }
     elseif ($name -eq "Interrupt_Basic") {
         Write-Host "Building Interrupt_Basic for HARDWARE (with ELPM)..." -ForegroundColor Yellow
-        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') Main.c ../../shared_libs/_port.c ../../shared_libs/_init.c -lm -o Main.elf
+        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') $SourceFile ../../shared_libs/_port.c ../../shared_libs/_init.c -lm -o "$BaseName.elf"
     }
     elseif ($name -eq "Port_Basic") {
         Write-Host "Building Port_Basic for HARDWARE (with ELPM)..." -ForegroundColor Cyan
-        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') Main.c -lm -o Main.elf
+        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') $SourceFile -lm -o "$BaseName.elf"
     }
     else {
         # Standard build for hardware (with ELPM) for all projects
         Write-Host "Building $name for HARDWARE (with ELPM)..." -ForegroundColor Green
-        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') Main.c ../../shared_libs/_port.c ../../shared_libs/_init.c ../../shared_libs/_uart.c ../../shared_libs/_glcd.c ../../shared_libs/_timer2.c ../../shared_libs/_adc.c ../../shared_libs/_buzzer.c ../../shared_libs/_eeprom.c -lm -o Main.elf
+        & $avrGccExe $CommonFlags.Split(' ') $McStudioFlags.Split(' ') $ExactMcStudioFlags.Split(' ') $SourceFile ../../shared_libs/_port.c ../../shared_libs/_init.c ../../shared_libs/_uart.c ../../shared_libs/_glcd.c ../../shared_libs/_timer2.c ../../shared_libs/_adc.c ../../shared_libs/_buzzer.c ../../shared_libs/_eeprom.c -lm -o "$BaseName.elf"
     }
     
     if ($LASTEXITCODE -eq 0) {
-        & $avrObjcopyExe -O ihex -R .eeprom Main.elf Main.hex
+        & $avrObjcopyExe -O ihex -R .eeprom "$BaseName.elf" "$BaseName.hex"
         Write-Host "Build completed!" -ForegroundColor Green
-        Write-Host "Files: Main.elf, Main.hex" -ForegroundColor Gray
+        Write-Host "Files: $BaseName.elf, $BaseName.hex" -ForegroundColor Gray
     }
     else {
         Write-Host "Build failed!" -ForegroundColor Red

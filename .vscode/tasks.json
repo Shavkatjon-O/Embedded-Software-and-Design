@@ -76,7 +76,9 @@
                 "-File",
                 "${workspaceFolder}\\tools\\cli\\cli-build-project.ps1",
                 "-ProjectDir",
-                "${fileDirname}"
+                "${fileDirname}",
+                "-SourceFile",
+                "${fileBasename}"
             ],
             "group": {
                 "kind": "build",
@@ -84,6 +86,12 @@
             },
             "options": {
                 "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
             }
         },
         {
@@ -117,11 +125,19 @@
                 "-File",
                 "${workspaceFolder}\\tools\\cli\\cli-build-simulide.ps1",
                 "-ProjectDir",
-                "${fileDirname}"
+                "${fileDirname}",
+                "-SourceFile",
+                "${fileBasename}"
             ],
             "group": "build",
             "options": {
                 "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
             }
         },
         {

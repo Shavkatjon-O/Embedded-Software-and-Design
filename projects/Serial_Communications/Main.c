@@ -1399,9 +1399,9 @@ int main(void)
     // demo_polling_sentence_echo();  // Demo 3: Polling sentence echo
 
     // ======== INTERRUPT TRACK (Character → Word → Sentence) =========
-    demo_interrupt_char_echo(); // Demo 4: Interrupt character echo
+    // demo_interrupt_char_echo(); // Demo 4: Interrupt character echo
     // demo_interrupt_word_echo(); // Demo 5: Interrupt word echo (NEW!)
-    // demo_interrupt_sentence_echo(); // Demo 6: Interrupt sentence echo
+    demo_interrupt_sentence_echo(); // Demo 6: Interrupt sentence echo
 
     puts_USART1_P(PSTR("\r\n=== SUMMARY ===\r\n"));
     puts_USART1_P(PSTR("Polling: Simple but blocks CPU\r\n"));
